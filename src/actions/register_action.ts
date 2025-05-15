@@ -2,7 +2,7 @@
 
 import * as z from "zod";
 import { prisma } from "@/lib/prisma";
-import { signIn } from "@/lib/auth";
+import { signIn, signOut } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 
 import { LoginSchema, RegisterSchema } from "@/schemas";
@@ -107,4 +107,16 @@ const googleLogin = async () => {
   }
 };
 
-export { register, login, googleLogin };
+const logout = async () => {
+  try {
+    console.log("logout server action run");
+    await signOut({ redirectTo: "/" });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return "log out failed";
+    }
+    throw error;
+  }
+};
+
+export { register, login, googleLogin, logout };
