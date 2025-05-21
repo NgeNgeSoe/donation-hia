@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import {} from "next-auth/react";
+import "../globals.css";
+import { SessionProvider } from "next-auth/react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
 
 const geistSans = Geist({
@@ -28,20 +27,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+    <SessionProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <main>
+          <SidebarTrigger />
           <ModeToggle />
           {children}
-        </ThemeProvider>
-      </body>
-    </html>
+        </main>
+      </SidebarProvider>
+    </SessionProvider>
   );
 }

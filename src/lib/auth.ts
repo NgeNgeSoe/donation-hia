@@ -2,7 +2,11 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import authConfig from "./auth.config";
-import { getAccountByUserId, getUserById } from "@/actions/auth_actions";
+import {
+  getAccountByUserId,
+  getOrganizationByUserId,
+  getUserById,
+} from "@/actions/auth_actions";
 import { get } from "http";
 
 export const {
@@ -38,10 +42,13 @@ export const {
 
       const existingAccount = await getAccountByUserId(existingUser.id);
 
+      const organization = await getOrganizationByUserId(existingUser.id);
+
       token.isOauth = !!existingAccount; //return if account exists
       token.name = existingUser.name;
       token.email = existingUser.email;
       token.image = existingUser.image;
+      token.orgId = !!organization ? organization.id : null;
 
       return token;
     },
@@ -54,6 +61,7 @@ export const {
           ...session.user,
           id: token.sub,
           isOauth: token.isOauth,
+          orgId: token.orgId,
         },
       };
     },

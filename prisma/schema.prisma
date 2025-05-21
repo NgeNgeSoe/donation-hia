@@ -14,6 +14,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum PartyType {
+  ORGANIZATION
+  PERSON
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum PayType {
+  KPAY
+  AYAPAY
+  UABPAY
+  CASH
+  OTHERS
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -23,6 +47,8 @@ model User {
   accounts      Account[]
   sessions      Session[]
   password      String?
+
+  userPerson UserPerson?
 }
 
 model Account {
@@ -57,4 +83,229 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Party {
+  id        String    @id @default(uuid()) @db.Uuid
+  active    Boolean   @default(true)
+  partyType PartyType @default(PERSON)
+  createdAt DateTime  @default(now())
+
+  //relationships
+  organization Organization?
+  person       Person?
+}
+
+model Organization {
+  id          String  @id @db.Uuid
+  name        String
+  description String
+  logoUrl     String?
+
+  //relationships
+  party Party @relation(fields: [id], references: [id])
+
+  organizationPersons OrganizationPerson[]
+  currencies          Currency[]
+  projects            Project[]
+  personRoles         PersonRole[]
+}
+
+model Person {
+  id       String    @id @db.Uuid
+  fullName String
+  nickName String
+  phone    String
+  member   Boolean   @default(true)
+  gender   Gender
+  fromDate DateTime
+  thruDate DateTime?
+  //relationships
+  party    Party     @relation(fields: [id], references: [id])
+
+  organizationPersons OrganizationPerson[]
+  currencies          Currency[]
+  projects            Project[]
+  galleries           Gallery[]
+  transactions        Transaction[]
+  incomes             Income[]
+
+  personRoles        PersonRole[] @relation("PersonRole_Person")
+  createdPersonRoles PersonRole[] @relation("PersonRole_CreatedBy")
+
+  UserPerson UserPerson?
+}
+
+model OrganizationPerson {
+  id             String @id @default(cuid()) @db.VarChar(32)
+  organizationId String @db.Uuid
+  personId       String @db.Uuid
+
+  //relationships
+  organization Organization @relation(fields: [organizationId], references: [id])
+  person       Person       @relation(fields: [personId], references: [id])
+
+  @@unique([organizationId, personId]) // composite unique constraint
+  @@index([personId])
+}
+
+model Currency {
+  id             Int      @id @default(autoincrement())
+  name           String   @db.VarChar(50)
+  active         Boolean  @default(true)
+  default        Boolean
+  symbol         String   @db.VarChar(10)
+  code           String   @db.VarChar(5)
+  createdAt      DateTime @default(now())
+  createdById    String   @db.Uuid
+  organizationId String   @db.Uuid
+
+  //relationships
+  organization Organization @relation(fields: [organizationId], references: [id])
+  createdBy    Person       @relation(fields: [createdById], references: [id])
+
+  transactions Transaction[]
+}
+
+model Project {
+  id             String    @id @default(cuid())
+  description    String
+  location       String
+  createdAt      DateTime  @default(now())
+  createdById    String    @db.Uuid
+  fromDate       DateTime
+  thruDate       DateTime?
+  organizationId String    @db.Uuid
+  openingBalance Decimal   @db.Decimal(10, 2)
+
+  //relationships
+  createdBy    Person       @relation(fields: [createdById], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  galleries     Gallery[]
+  transactions  Transaction[]
+  fromTransfers Transfer[]    @relation("FromProjectTransfers")
+  toTransfers   Transfer[]    @relation("ToProjectTransfers")
+}
+
+model Gallery {
+  id          String   @id @default(cuid())
+  projectId   String
+  imageUrl    String
+  createdAt   DateTime @default(now())
+  createdById String   @db.Uuid
+
+  //relationships
+  project   Project @relation(fields: [projectId], references: [id])
+  createdBy Person  @relation(fields: [createdById], references: [id])
+}
+
+model Transaction {
+  id              String          @id @default(cuid())
+  type            TransactionType
+  transactionDate DateTime
+  createdAt       DateTime        @default(now())
+  createdById     String          @db.Uuid
+  projectId       String
+  currencyId      Int
+
+  //relationships
+  createdBy Person   @relation(fields: [createdById], references: [id])
+  project   Project  @relation(fields: [projectId], references: [id])
+  currency  Currency @relation(fields: [currencyId], references: [id])
+
+  incomes          Income[]
+  expenses         Expense[]
+  transfers        Transfer[]
+  transactionFiles TransactionFile[]
+  exchangeRates    ExchangeRate[]
+}
+
+model Income {
+  id       String    @id
+  memberId String    @db.Uuid
+  amount   Decimal   @db.Decimal(10, 2)
+  remark   String    @db.VarChar(200)
+  payType  PartyType
+
+  //relationships
+  member      Person      @relation(fields: [memberId], references: [id])
+  transaction Transaction @relation(fields: [id], references: [id])
+}
+
+model Expense {
+  id          String  @id
+  description String
+  amount      Decimal @db.Decimal(10, 2)
+
+  transaction Transaction @relation(fields: [id], references: [id])
+}
+
+model Transfer {
+  id            String  @id
+  amount        Decimal @db.Decimal(10, 2)
+  fromProjectId String
+  toProjectId   String
+
+  //relationships
+  transaction Transaction @relation(fields: [id], references: [id])
+  fromProject Project     @relation("FromProjectTransfers", fields: [fromProjectId], references: [id])
+  toProject   Project     @relation("ToProjectTransfers", fields: [toProjectId], references: [id])
+}
+
+model TransactionFile {
+  id            Int    @id @default(autoincrement())
+  transactionId String
+  imageUrl      String
+
+  //realationship
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+}
+
+model ExchangeRate {
+  id            Int         @id @default(autoincrement())
+  transactionId String
+  exchangeRate  Decimal     @db.Decimal(10, 2)
+  Amount        Decimal     @db.Decimal(10, 2)
+  //relationships
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+}
+
+model Role {
+  id     String  @id @default(cuid())
+  name   String  @unique
+  active Boolean @default(true)
+
+  personRoles PersonRole[]
+}
+
+model PersonRole {
+  id             String   @id @default(cuid())
+  personId       String   @db.Uuid
+  roleId         String
+  organizationId String   @db.Uuid
+  createdAt      DateTime @default(now())
+  createdById    String   @db.Uuid
+
+  //relationships
+  person       Person       @relation("PersonRole_Person", fields: [personId], references: [id])
+  role         Role         @relation(fields: [roleId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+  createdBy    Person       @relation("PersonRole_CreatedBy", fields: [createdById], references: [id])
+
+  @@unique([personId, roleId, organizationId]) // composite unique constraint
+  @@index([personId, roleId, organizationId]) // composite index
+  @@index([createdById]) // index on createdById
+}
+
+model UserPerson {
+  userId   String
+  personId String @db.Uuid
+
+  user   User   @relation(fields: [userId], references: [id])
+  person Person @relation(fields: [personId], references: [id])
+
+  @@id([userId, personId]) // <- composite primary key
+  @@unique([userId]) // <- composite unique constraint
+  @@unique([personId])
 }

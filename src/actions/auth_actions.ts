@@ -28,4 +28,32 @@ const getAccountByUserId = async (userId: string) => {
   }
 };
 
-export { getUserById, getAccountByUserId };
+const getOrganizationByUserId = async (userId: string) => {
+  try {
+    //get user_person by userId
+    const userPerson = await prisma.userPerson.findFirst({
+      where: {
+        userId,
+      },
+    });
+    if (!userPerson) return null;
+
+    //get organization by personid
+    const organizationPerson = await prisma.organizationPerson.findFirst({
+      where: {
+        personId: userPerson.personId,
+      },
+      include: {
+        organization: true,
+      },
+    });
+    if (!organizationPerson) return null;
+
+    return organizationPerson.organization;
+  } catch (error) {
+    console.error("Error fetching user organization:", error);
+    return null;
+  }
+};
+
+export { getUserById, getAccountByUserId, getOrganizationByUserId };
