@@ -7,10 +7,12 @@ import bcrypt from "bcryptjs";
 
 import { LoginSchema, RegisterSchema } from "@/schemas";
 import { AuthError } from "next-auth";
+import { redirect } from "next/navigation";
 
 const register = async (data: z.infer<typeof RegisterSchema>) => {
   try {
     const validatedData = RegisterSchema.parse(data);
+
     if (!validatedData) {
       return {
         error: "Invalid data",
@@ -97,6 +99,7 @@ const login = async (data: z.infer<typeof LoginSchema>) => {
 const googleLogin = async () => {
   try {
     await signIn("google", {
+      // if exists party user
       redirectTo: "/dashboard",
     });
   } catch (error) {
@@ -110,7 +113,7 @@ const googleLogin = async () => {
 const logout = async () => {
   try {
     console.log("logout server action run");
-    await signOut({ redirectTo: "/" });
+    await signOut();
   } catch (error) {
     if (error instanceof AuthError) {
       return "log out failed";

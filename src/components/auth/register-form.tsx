@@ -54,8 +54,9 @@ const RegisterForm = () => {
         setLoading(false);
         setError("");
         setSuccess(res.success);
+        
       }
-      setLoading(false);
+      
     });
   };
 
