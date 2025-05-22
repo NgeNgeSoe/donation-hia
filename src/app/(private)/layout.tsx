@@ -5,6 +5,8 @@ import { SessionProvider } from "next-auth/react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
+import { OrgProvider } from "@/contexts/organizationContext";
+import { useContext } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,14 +30,16 @@ export default function RootLayout({
 }>) {
   return (
     <SessionProvider>
-      <SidebarProvider>
-        <AppSidebar />
-        <main>
-          <SidebarTrigger />
-          <ModeToggle />
-          {children}
-        </main>
-      </SidebarProvider>
+      <OrgProvider>
+        <SidebarProvider>
+          <AppSidebar />
+          <main>
+            <SidebarTrigger />
+            <ModeToggle />
+            {children}
+          </main>
+        </SidebarProvider>
+      </OrgProvider>
     </SessionProvider>
   );
 }

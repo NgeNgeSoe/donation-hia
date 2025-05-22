@@ -19,10 +19,9 @@ type PageProps = {
 
 const MemberPage: FC<PageProps> = async ({ params }) => {
   const { id } = params;
-  const session = await auth();
 
   // get members
-  const members = await getMemberByOrganizationId(session?.user.orgId!);
+  const members = await getMemberByOrganizationId(id);
 
   return (
     <div>
