@@ -1,4 +1,4 @@
-import LogoutButton from "@/components/auth/logout-button";
+import { OrgContext } from "@/contexts/organizationContext";
 import React from "react";
 
 const page = () => {

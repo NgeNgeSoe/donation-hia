@@ -140,6 +140,13 @@ const data = {
       icon: PieChart,
     },
   ],
+  configurations: [
+    {
+      name: "Currencies",
+      url: "/currencies",
+      icon: Frame,
+    },
+  ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -148,6 +155,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   if (!session?.user) {
     return <div>login in again</div>;
   }
+
   const user = {
     name: session?.user.name ?? "Unknown User",
     email: session?.user.email ?? "unknown@example.com",
@@ -162,6 +170,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         {/* <NavMain items={data.navMain} /> */}
         <NavProjects projects={data.projects} />
+        <NavProjects configurations={data.configurations} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />

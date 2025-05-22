@@ -9,7 +9,7 @@ type PageProps = {
 
 const NewMemberPage: FC<PageProps> = async ({ params }) => {
   const { id } = await params;
-  // console.log("orgid", id);
+
   return (
     <div>
       new member page

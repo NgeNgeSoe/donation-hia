@@ -54,3 +54,16 @@ export const NewPersonSchema = z.object({
   fromDate: z.coerce.date().nullable().optional(),
   thruDate: z.coerce.date().nullable().optional(),
 });
+
+export const NewCurrencySchema = z.object({
+  name: z.string().min(1, {
+    message: "Currency name is required",
+  }),
+  symbol: z.string().max(5, {
+    message: "allow 5 characters",
+  }),
+  code: z.string().max(10, {
+    message: "allow only 10 characters",
+  }),
+  default: z.boolean(),
+});

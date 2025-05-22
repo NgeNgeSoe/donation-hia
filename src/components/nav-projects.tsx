@@ -25,35 +25,70 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useSession } from "next-auth/react";
+import { useContext } from "react";
+import { OrgContext } from "@/contexts/organizationContext";
 
 export function NavProjects({
   projects,
+  configurations,
 }: {
-  projects: {
-    name: string;
-    url: string;
-    icon: LucideIcon;
-  }[];
+  projects?:
+    | {
+        name: string;
+        url: string;
+        icon: LucideIcon;
+      }[]
+    | null;
+  configurations?:
+    | {
+        name: string;
+        url: string;
+        icon: LucideIcon;
+      }[]
+    | null;
 }) {
   const { isMobile } = useSidebar();
 
   const { data: session } = useSession();
 
+  const orgContext = useContext(OrgContext);
+
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      {/* <SidebarGroupLabel>Projects</SidebarGroupLabel> */}
-      <SidebarMenu>
-        {projects.map((item) => (
-          <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
-              <a href={`/${session?.user.orgId}` + item.url}>
-                <item.icon />
-                <span>{item.name}</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        ))}
-      </SidebarMenu>
+      {projects && (
+        <>
+          <SidebarGroupLabel>Projects</SidebarGroupLabel>
+          <SidebarMenu>
+            {projects.map((item) => (
+              <SidebarMenuItem key={item.name}>
+                <SidebarMenuButton asChild>
+                  <a href={`/${orgContext?.orgId}` + item.url}>
+                    <item.icon />
+                    <span>{item.name}</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </>
+      )}
+      {configurations && (
+        <>
+          <SidebarGroupLabel>Projects</SidebarGroupLabel>
+          <SidebarMenu>
+            {configurations.map((item) => (
+              <SidebarMenuItem key={item.name}>
+                <SidebarMenuButton asChild>
+                  <a href={`/${orgContext?.orgId}` + item.url}>
+                    <item.icon />
+                    <span>{item.name}</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </>
+      )}
     </SidebarGroup>
   );
 }
