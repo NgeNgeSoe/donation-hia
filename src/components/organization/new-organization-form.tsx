@@ -25,9 +25,11 @@ import {
 
 import { useSession, SessionProvider } from "next-auth/react";
 import { Gender } from "@prisma/client";
+import { useRouter } from "next/navigation";
 
 const NewOrganizationForm = () => {
   const session = useSession();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -62,12 +64,14 @@ const NewOrganizationForm = () => {
                 setLoading(false);
                 setError("");
 
+                console.log("added person", res);
                 //get admin role
                 const role = await getRoleByTerms("admin");
                 //add userperson and role
                 addUserPerson(res.id).then(async (res) => {
                   if (res && !("error" in res)) {
                     //add user person
+                    console.log("added user person", res);
                     addPersonRole(
                       orgId,
                       role?.id!,
@@ -76,6 +80,8 @@ const NewOrganizationForm = () => {
                     ).then((res) => {
                       if (res && !("error" in res)) {
                         // success registeration
+                        console.log("added person role", res);
+                        router.push("/dashboard");
                       } else if (res && "error" in res) {
                         setError("error adding person role");
                       }

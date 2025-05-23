@@ -53,8 +53,6 @@ export const {
       return token;
     },
     async session({ token, session }) {
-      // console.log("session token value callback", token);
-      // console.log("session bject value callback", session);
       return {
         ...session,
         user: {

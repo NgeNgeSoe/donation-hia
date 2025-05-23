@@ -9,22 +9,13 @@ import {
 } from "lucide-react";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useSession } from "next-auth/react";
 import { useContext } from "react";
 import { OrgContext } from "@/contexts/organizationContext";
 
@@ -49,9 +40,8 @@ export function NavProjects({
 }) {
   const { isMobile } = useSidebar();
 
-  const { data: session } = useSession();
-
   const orgContext = useContext(OrgContext);
+  console.log("orgContext in app sidebar", orgContext);
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -74,7 +64,7 @@ export function NavProjects({
       )}
       {configurations && (
         <>
-          <SidebarGroupLabel>Projects</SidebarGroupLabel>
+          <SidebarGroupLabel>Configurations</SidebarGroupLabel>
           <SidebarMenu>
             {configurations.map((item) => (
               <SidebarMenuItem key={item.name}>
