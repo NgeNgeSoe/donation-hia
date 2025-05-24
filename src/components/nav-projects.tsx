@@ -41,7 +41,6 @@ export function NavProjects({
   const { isMobile } = useSidebar();
 
   const orgContext = useContext(OrgContext);
-  console.log("orgContext in app sidebar", orgContext);
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
