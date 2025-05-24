@@ -67,3 +67,15 @@ export const NewCurrencySchema = z.object({
   }),
   default: z.boolean(),
 });
+
+export const NewProjectSchema = z.object({
+  description: z.string().min(1, {
+    message: "description is required",
+  }),
+  location: z.string().min(1, {
+    message: "location is required",
+  }),
+  fromDate: z.coerce.date(),
+  thruDate: z.coerce.date(),
+  openingAmount: z.number(),
+});

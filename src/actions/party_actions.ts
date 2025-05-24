@@ -51,7 +51,7 @@ const addPerson = async (
             member: data.member,
             nickName: data.nickName ?? "",
             gender: data.gender,
-            fromDate: data.fromDate!,
+            fromDate: data.fromDate ?? new Date(),
             thruDate: data.thruDate,
           },
         },

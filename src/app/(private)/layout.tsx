@@ -29,17 +29,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <SessionProvider>
-      <OrgProvider>
-        <SidebarProvider>
-          <AppSidebar />
-          <main>
-            <SidebarTrigger />
-            <ModeToggle />
-            {children}
-          </main>
-        </SidebarProvider>
-      </OrgProvider>
-    </SessionProvider>
+    // <SessionProvider>
+    <OrgProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <main className="flex-1">
+          <SidebarTrigger />
+          <ModeToggle />
+          {children}
+        </main>
+      </SidebarProvider>
+    </OrgProvider>
+    // </SessionProvider>
   );
 }
