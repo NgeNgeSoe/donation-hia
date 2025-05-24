@@ -10,13 +10,15 @@ import {
 import { Label } from "../ui/label";
 import { ProjectWithTotalModel } from "@/types";
 import { Button } from "../ui/button";
-import { ChevronRight, HeartHandshake, SquarePen } from "lucide-react";
+import { HeartHandshake, SquarePen } from "lucide-react";
+import Link from "next/link";
 
 type ProjectProps = {
   item: ProjectWithTotalModel;
+  orgId: string;
 };
 
-const ProjectItem: FC<ProjectProps> = ({ item }) => {
+const ProjectItem: FC<ProjectProps> = ({ item, orgId }) => {
   return (
     <Card className="w-1/3">
       <CardHeader>
@@ -48,9 +50,11 @@ const ProjectItem: FC<ProjectProps> = ({ item }) => {
           <Button variant={"outline"}>
             <SquarePen /> Edit
           </Button>
-          <Button variant={"outline"}>
-            <HeartHandshake /> Donate
-          </Button>
+          <Link href={`/${orgId}/projects/${item.id}/search-member`}>
+            <Button variant={"outline"}>
+              <HeartHandshake /> Donate
+            </Button>
+          </Link>
         </div>
       </CardFooter>
     </Card>

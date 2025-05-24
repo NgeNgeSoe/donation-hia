@@ -10,11 +10,13 @@ import {
 } from "../ui/table";
 import { Person } from "@prisma/client";
 import { Checkbox } from "../ui/checkbox";
+import Link from "next/link";
 
 type Props = {
   data: Person[];
+  url?: string;
 };
-const MemberTable: FC<Props> = ({ data }) => {
+const MemberTable: FC<Props> = ({ data, url }) => {
   return (
     <Table>
       {/* <TableCaption>Members 33</TableCaption> */}
@@ -23,7 +25,7 @@ const MemberTable: FC<Props> = ({ data }) => {
       </TableHeader>
       <TableBody>
         {data.map((item) => (
-          <RenderTableRow key={item.id} item={item} />
+          <RenderTableRow key={item.id} item={item} url={url} />
         ))}
       </TableBody>
     </Table>
@@ -39,10 +41,11 @@ const RenderHeaderRow = () => (
     <TableHead className="w-[100px]">Member?</TableHead>
     <TableHead className="w-[100px]">From</TableHead>
     <TableHead className="w-[100px]">Thru</TableHead>
+    <TableHead className="w-[100px]"></TableHead>
   </TableRow>
 );
 
-const RenderTableRow = ({ item }: { item: Person }) => (
+const RenderTableRow = ({ item, url }: { item: Person; url?: string }) => (
   <TableRow>
     <TableCell className="w-[100px]">{item.fullName}</TableCell>
     <TableCell className="w-[100px]">{item.nickName}</TableCell>
@@ -57,6 +60,11 @@ const RenderTableRow = ({ item }: { item: Person }) => (
     <TableCell className="w-[100px]">
       {item.thruDate ? new Date(item.thruDate).toLocaleDateString() : "-"}
     </TableCell>
+    {url && (
+      <TableCell className="w-[100px]">
+        <Link href={url}>Select</Link>
+      </TableCell>
+    )}
   </TableRow>
 );
 

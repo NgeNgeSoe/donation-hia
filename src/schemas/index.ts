@@ -1,4 +1,4 @@
-import { Gender } from "@prisma/client";
+import { Gender, PayType } from "@prisma/client";
 import * as z from "zod";
 
 export const RegisterSchema = z.object({
@@ -40,6 +40,7 @@ export const NewOrganizationSchema = z.object({
 });
 
 export const GenderEnum = z.nativeEnum(Gender); // z.enum(["MALE", "FEMALE"]);
+export const PayTypeEnum = z.nativeEnum(PayType);
 
 export const NewPersonSchema = z.object({
   fullName: z.string().min(1, {
@@ -78,4 +79,14 @@ export const NewProjectSchema = z.object({
   fromDate: z.coerce.date(),
   thruDate: z.coerce.date(),
   openingAmount: z.number(),
+});
+
+export const NewIncomeSchema = z.object({
+  memberId: z.string(),
+  amount: z.number(),
+  payType: PayTypeEnum,
+  currencyId: z.number(),
+  transactionDate: z.coerce.date(),
+  remark: z.string().nullable(),
+  imgUrl: z.string().nullable(),
 });

@@ -26,7 +26,7 @@ const ProjectPage: FC<PageProps> = async ({ params }) => {
         <div className="flex gap-5">
           {projects?.current &&
             projects.current.map((proj) => (
-              <ProjectItem key={proj.id} item={proj} />
+              <ProjectItem key={proj.id} item={proj} orgId={id} />
             ))}
         </div>
       </div>
@@ -35,7 +35,7 @@ const ProjectPage: FC<PageProps> = async ({ params }) => {
         <div className="flex gap-5">
           {projects?.completed &&
             projects.completed.map((proj) => (
-              <ProjectItem key={proj.id} item={proj} />
+              <ProjectItem key={proj.id} item={proj} orgId={id} />
             ))}
           {projects?.completed.length === 0 && (
             <Label>No completed project!</Label>
