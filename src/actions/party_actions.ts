@@ -157,6 +157,48 @@ const getMemberByOrganizationId = async (orgId: string) => {
   }
 };
 
+const getMembersByTerms = async (orgId: string, str: string) => {
+  try {
+    console.log("orgId", orgId);
+    const members = await prisma.person.findMany({
+      where: {
+        party: {
+          active: true,
+        },
+        organizationPersons: {
+          some: {
+            organizationId: orgId,
+          },
+        },
+        member: true,
+        OR: [
+          { fullName: { contains: str, mode: "insensitive" } },
+          { nickName: { contains: str, mode: "insensitive" } },
+        ],
+      },
+    });
+    return members;
+  } catch (error) {
+    console.error("error occuring search member");
+    return null;
+  }
+};
+
+const getDefault_Org_Currency = async (orgId: string) => {
+  try {
+    const default_currency = await prisma.currency.findFirst({
+      where: {
+        organizationId: orgId,
+        default: true,
+      },
+    });
+    return default_currency;
+  } catch (error) {
+    console.error("error occuring get default org currency");
+    return null;
+  }
+};
+
 export {
   addOrganization,
   addPerson,
@@ -164,4 +206,6 @@ export {
   addPersonRole,
   getRoleByTerms,
   getMemberByOrganizationId,
+  getMembersByTerms,
+  getDefault_Org_Currency,
 };
