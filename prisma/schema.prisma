@@ -222,11 +222,11 @@ model Transaction {
 }
 
 model Income {
-  id       String    @id
-  memberId String    @db.Uuid
-  amount   Decimal   @db.Decimal(10, 2)
-  remark   String    @db.VarChar(200)
-  payType  PartyType
+  id       String  @id
+  memberId String  @db.Uuid
+  amount   Decimal @db.Decimal(10, 2)
+  remark   String  @db.VarChar(200)
+  payType  PayType
 
   //relationships
   member      Person      @relation(fields: [memberId], references: [id])

@@ -12,3 +12,16 @@ export type ProjectWithTotalModel = {
   from: Date;
   to: Date | null;
 };
+
+export type dropdownModel = {
+  value: string;
+  label: string;
+};
+
+export enum PayType {
+  KPAY = "KPAY",
+  AYAPAY = "AYAPAY",
+  UABPAY = "UABPAY",
+  CASH = "CASH",
+  OTHERS = "OTHERS",
+}

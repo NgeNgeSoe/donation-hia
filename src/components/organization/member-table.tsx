@@ -1,3 +1,4 @@
+"use client";
 import React, { FC } from "react";
 import {
   Table,
@@ -11,21 +12,34 @@ import {
 import { Person } from "@prisma/client";
 import { Checkbox } from "../ui/checkbox";
 import Link from "next/link";
+import { useMemberStore } from "@/lib/stores/personStore";
+import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 type Props = {
   data: Person[];
   url?: string;
 };
 const MemberTable: FC<Props> = ({ data, url }) => {
+  const setMember = useMemberStore((state) => state.setMember);
+  const router = useRouter();
+
+  const onHandleSelect = (member: Person) => {
+    setMember(member);
+    router.push(`${url}?mid=${member.id}`);
+  };
   return (
     <Table>
-      {/* <TableCaption>Members 33</TableCaption> */}
       <TableHeader>
         <RenderHeaderRow />
       </TableHeader>
       <TableBody>
         {data.map((item) => (
-          <RenderTableRow key={item.id} item={item} url={url} />
+          <RenderTableRow
+            key={item.id}
+            item={item}
+            onHandle={(e) => onHandleSelect(e)}
+          />
         ))}
       </TableBody>
     </Table>
@@ -45,27 +59,37 @@ const RenderHeaderRow = () => (
   </TableRow>
 );
 
-const RenderTableRow = ({ item, url }: { item: Person; url?: string }) => (
-  <TableRow>
-    <TableCell className="w-[100px]">{item.fullName}</TableCell>
-    <TableCell className="w-[100px]">{item.nickName}</TableCell>
-    <TableCell className="w-[100px]">{item.phone}</TableCell>
-    <TableCell className="w-[100px]">{item.gender}</TableCell>
-    <TableCell className="w-[100px]">
-      <Checkbox checked={item.member} />
-    </TableCell>
-    <TableCell className="w-[100px]">
-      {item.fromDate ? new Date(item.fromDate).toLocaleDateString() : "-"}
-    </TableCell>
-    <TableCell className="w-[100px]">
-      {item.thruDate ? new Date(item.thruDate).toLocaleDateString() : "-"}
-    </TableCell>
-    {url && (
+const RenderTableRow = ({
+  item,
+  onHandle,
+}: {
+  item: Person;
+  onHandle?: (item: Person) => void;
+}) => {
+  return (
+    <TableRow>
+      <TableCell className="w-[100px]">{item.fullName}</TableCell>
+      <TableCell className="w-[100px]">{item.nickName}</TableCell>
+      <TableCell className="w-[100px]">{item.phone}</TableCell>
+      <TableCell className="w-[100px]">{item.gender}</TableCell>
       <TableCell className="w-[100px]">
-        <Link href={url}>Select</Link>
+        <Checkbox checked={item.member} />
       </TableCell>
-    )}
-  </TableRow>
-);
+      <TableCell className="w-[100px]">
+        {item.fromDate ? new Date(item.fromDate).toLocaleDateString() : "-"}
+      </TableCell>
+      <TableCell className="w-[100px]">
+        {item.thruDate ? new Date(item.thruDate).toLocaleDateString() : "-"}
+      </TableCell>
+      {onHandle && (
+        <TableCell className="w-[100px]">
+          <Button variant={"outline"} onClick={() => onHandle(item)}>
+            Select
+          </Button>
+        </TableCell>
+      )}
+    </TableRow>
+  );
+};
 
 export default MemberTable;

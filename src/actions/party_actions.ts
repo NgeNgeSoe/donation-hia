@@ -184,6 +184,21 @@ const getMembersByTerms = async (orgId: string, str: string) => {
   }
 };
 
+const getDefault_Org_Currency = async (orgId: string) => {
+  try {
+    const default_currency = await prisma.currency.findFirst({
+      where: {
+        organizationId: orgId,
+        default: true,
+      },
+    });
+    return default_currency;
+  } catch (error) {
+    console.error("error occuring get default org currency");
+    return null;
+  }
+};
+
 export {
   addOrganization,
   addPerson,
@@ -192,4 +207,5 @@ export {
   getRoleByTerms,
   getMemberByOrganizationId,
   getMembersByTerms,
+  getDefault_Org_Currency,
 };

@@ -1,9 +1,16 @@
 "use client";
-import React from "react";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
+import React, { use, useTransition } from "react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { NewIncomeSchema, PayTypeEnum } from "@/schemas";
+import { NewIncomeSchema } from "@/schemas";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -21,57 +28,112 @@ import {
   CommandItem,
   CommandList,
 } from "../ui/command";
+import { useMemberStore } from "@/lib/stores/personStore";
+import { dropdownModel, PayType } from "@/types";
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-];
+import { Select } from "../ui/select";
+import { SelectTrigger } from "../ui/select";
+import { SelectValue } from "../ui/select";
+import { SelectContent } from "../ui/select";
+import { SelectItem } from "../ui/select";
+import { start } from "repl";
+import { addIncome } from "@/actions/transaction_actions";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 type NewIncomeFormType = z.infer<typeof NewIncomeSchema>;
 
-const NewIncomeForm = () => {
+const NewIncomeForm = ({
+  currencies,
+  projectId,
+  orgId,
+}: {
+  currencies: dropdownModel[];
+  projectId: string;
+  orgId: string;
+}) => {
+  const member = useMemberStore((state) => state.member);
+  const { data: session } = useSession();
+  const router = useRouter();
+
   const form = useForm<NewIncomeFormType>({
     resolver: zodResolver(NewIncomeSchema),
     defaultValues: {
-      memberId: "",
+      memberId: member?.id,
       amount: 0,
-      payType: "KPAY",
+      payType: undefined,
       currencyId: 0,
       transactionDate: new Date(),
       remark: null,
       imgUrl: null,
+      //imgUrl: "--"
+      projectId: projectId,
     },
   });
 
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  const [ispending, startTransition] = useTransition();
 
-  const onSubmit = (data: NewIncomeFormType) => {};
+  const onSubmit = (data: NewIncomeFormType) => {
+    const validation = NewIncomeSchema.safeParse(data);
+
+    if (validation.success) {
+      try {
+        startTransition(async () => {
+          const income = await addIncome(data, session?.user.id!);
+
+          if (income) {
+            // go to income list page
+            router.push(`/${orgId}/projects/${projectId}/income`);
+          } else {
+            console.error("return null from server function");
+          }
+        });
+      } catch (error) {
+        console.error("error occurred while sever fun call on form", error);
+      }
+    } else {
+      console.error("Validation failed", validation.error);
+      return;
+    }
+  };
+
+  if (!member || !projectId) return <div>Loading...</div>;
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(
+          (data) => {
+            onSubmit(data);
+          },
+          (error) => {
+            console.log("invlaid form error", error);
+          }
+        )}
         className="flex flex-col gap-3"
       >
+        <FormItem>
+          <FormLabel>Name</FormLabel>
+          <FormLabel>
+            {member?.fullName}, {member?.nickName}
+          </FormLabel>
+        </FormItem>
+        {/* Hidden form field for memberId */}
+        <FormField
+          control={form.control}
+          name="memberId"
+          render={({ field }) => (
+            <input type="hidden" {...field} value={member?.id} />
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="projectId"
+          render={({ field }) => (
+            <input type="hidden" {...field} value={projectId} />
+          )}
+        />
         <FormField
           control={form.control}
           name="amount"
@@ -104,40 +166,39 @@ const NewIncomeForm = () => {
                       aria-expanded={open}
                       className="w-[200px] justify-between"
                     >
-                      {value
-                        ? frameworks.find(
-                            (framework) => framework.value === value
+                      {field.value
+                        ? currencies.find(
+                            (currency) =>
+                              currency.value === field.value.toString()
                           )?.label
-                        : "Select framework..."}
+                        : "Select currency..."}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[200px] p-0">
                     <Command>
-                      <CommandInput placeholder="Search framework..." />
+                      <CommandInput placeholder="Search currency..." />
                       <CommandList>
-                        <CommandEmpty>No framework found.</CommandEmpty>
+                        <CommandEmpty>No currency found.</CommandEmpty>
                         <CommandGroup>
-                          {frameworks.map((framework) => (
+                          {currencies.map((currency) => (
                             <CommandItem
-                              key={framework.value}
-                              value={framework.value}
-                              onSelect={(currentValue) => {
-                                setValue(
-                                  currentValue === value ? "" : currentValue
-                                );
+                              key={currency.value}
+                              value={currency.value}
+                              onSelect={() => {
+                                field.onChange(Number(currency.value));
                                 setOpen(false);
                               }}
                             >
                               <Check
                                 className={cn(
                                   "mr-2 h-4 w-4",
-                                  value === framework.value
+                                  field.value.toString() === currency.value
                                     ? "opacity-100"
                                     : "opacity-0"
                                 )}
                               />
-                              {framework.label}
+                              {currency.label}
                             </CommandItem>
                           ))}
                         </CommandGroup>
@@ -154,57 +215,23 @@ const NewIncomeForm = () => {
           name="payType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Currency</FormLabel>
+              <FormLabel>Pay Type</FormLabel>
               <FormControl>
-                <Popover open={open} onOpenChange={setOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={open}
-                      className="w-[200px] justify-between"
-                    >
-                      {value
-                        ? frameworks.find(
-                            (framework) => framework.value === value
-                          )?.label
-                        : "Select framework..."}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Search framework..." />
-                      <CommandList>
-                        <CommandEmpty>No framework found.</CommandEmpty>
-                        <CommandGroup>
-                          {frameworks.map((framework) => (
-                            <CommandItem
-                              key={framework.value}
-                              value={framework.value}
-                              onSelect={(currentValue) => {
-                                setValue(
-                                  currentValue === value ? "" : currentValue
-                                );
-                                setOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  value === framework.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {framework.label}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a pay type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.values(PayType).map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {/* <FormMessage /> */}
               </FormControl>
             </FormItem>
           )}
@@ -284,7 +311,9 @@ const NewIncomeForm = () => {
           )}
         />
 
-        <Button variant={"outline"}>Submit</Button>
+        <Button type="submit" variant={"outline"}>
+          Submit
+        </Button>
       </form>
     </Form>
   );

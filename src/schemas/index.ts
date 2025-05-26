@@ -1,4 +1,5 @@
-import { Gender, PayType } from "@prisma/client";
+import { Gender } from "@prisma/client";
+import { PayType } from "@/types";
 import * as z from "zod";
 
 export const RegisterSchema = z.object({
@@ -89,4 +90,5 @@ export const NewIncomeSchema = z.object({
   transactionDate: z.coerce.date(),
   remark: z.string().nullable(),
   imgUrl: z.string().nullable(),
+  projectId: z.string(),
 });
