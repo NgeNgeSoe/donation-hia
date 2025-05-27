@@ -92,3 +92,12 @@ export const NewIncomeSchema = z.object({
   imgUrl: z.string().nullable(),
   projectId: z.string(),
 });
+
+export const NewExpenseSchema = z.object({
+  description: z.string(),
+  amount: z.number(),
+  projectId: z.string(),
+  transactionDate: z.coerce.date(),
+  imgUrl: z.string().nullable(),
+  currencyId: z.number(),
+});

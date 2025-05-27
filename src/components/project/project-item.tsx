@@ -50,6 +50,11 @@ const ProjectItem: FC<ProjectProps> = ({ item, orgId }) => {
           <Button variant={"outline"}>
             <SquarePen /> Edit
           </Button>
+          <Link href={`/${orgId}/projects/${item.id}/transactions`}>
+            <Button variant={"outline"}>
+              <SquarePen /> View
+            </Button>
+          </Link>
           <Link href={`/${orgId}/projects/${item.id}/search-member`}>
             <Button variant={"outline"}>
               <HeartHandshake /> Donate

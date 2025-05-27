@@ -94,7 +94,10 @@ const addProject = async (
         openingBalance: data.openingAmount,
       },
     });
-    return newProject;
+    return {
+      ...newProject,
+      openingBalance: newProject.openingBalance.toNumber(),
+    };
   } catch (error) {
     console.error("error occuring creating project", error);
   }

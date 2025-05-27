@@ -11,7 +11,7 @@ type PageProps = {
 };
 
 const ProjectPage: FC<PageProps> = async ({ params }) => {
-  const { id } = params;
+  const { id } = await params;
 
   const projects = await getProjects(id);
   console.log(projects);
