@@ -1,4 +1,5 @@
-import React, { FC } from "react";
+"use client";
+import React, { FC, useTransition } from "react";
 import {
   Card,
   CardContent,
@@ -10,8 +11,21 @@ import {
 import { Label } from "../ui/label";
 import { ProjectWithTotalModel } from "@/types";
 import { Button } from "../ui/button";
-import { HeartHandshake, SquarePen } from "lucide-react";
+import { EyeIcon, HeartHandshake, SquarePen, Trash2 } from "lucide-react";
 import Link from "next/link";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
+import { deleteProject } from "@/actions/project_actions";
+import { useRouter } from "next/navigation";
 
 type ProjectProps = {
   item: ProjectWithTotalModel;
@@ -19,6 +33,19 @@ type ProjectProps = {
 };
 
 const ProjectItem: FC<ProjectProps> = ({ item, orgId }) => {
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleDelete = () => {
+    startTransition(async () => {
+      const result = await deleteProject(item.id);
+      if (result.success) {
+        router.refresh();
+      } else {
+        console.error(result.message);
+      }
+    });
+  };
   return (
     <Card className="w-1/3">
       <CardHeader>
@@ -46,15 +73,42 @@ const ProjectItem: FC<ProjectProps> = ({ item, orgId }) => {
         </div>
       </CardContent>
       <CardFooter>
-        <div className="flex flex-1 gap-2 justify-end">
+        <div className="flex flex-1 flex-wrap gap-2 justify-end">
           <Button variant={"outline"}>
             <SquarePen /> Edit
           </Button>
+          <Link href={`/${orgId}/projects/${item.id}/transactions`}>
+            <Button variant={"outline"}>
+              <EyeIcon /> View
+            </Button>
+          </Link>
           <Link href={`/${orgId}/projects/${item.id}/search-member`}>
             <Button variant={"outline"}>
               <HeartHandshake /> Donate
             </Button>
           </Link>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant={"outline"}>
+                <Trash2 /> Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the
+                  project and remove project data from the servers.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction disabled={isPending} onClick={handleDelete}>
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardFooter>
     </Card>

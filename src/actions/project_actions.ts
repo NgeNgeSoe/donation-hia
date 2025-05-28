@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { NewProjectSchema } from "@/schemas";
-import { GetProjectModel, ProjectWithTotalModel } from "@/types";
+import { ProjectWithTotalModel } from "@/types";
 import { TransactionType } from "@prisma/client";
 import { z } from "zod";
 import { getPersonByUserId } from "./auth_actions";
@@ -59,7 +59,8 @@ const getProjects = async (organizationId: string) => {
     );
 
     const current = temp_projects.filter(
-      (p) => p.from && p.from < today && p.to && p.to > today
+      //(p) => p.from && p.from < today && p.to && p.to > today
+      (p) => p.to && p.to > today
     );
 
     const completed = temp_projects.filter((p) => p.to && p.to < today);
@@ -94,10 +95,28 @@ const addProject = async (
         openingBalance: data.openingAmount,
       },
     });
-    return newProject;
+    return {
+      ...newProject,
+      openingBalance: newProject.openingBalance.toNumber(),
+    };
   } catch (error) {
     console.error("error occuring creating project", error);
   }
 };
 
-export { getProjects, addProject };
+const deleteProject = async (id: string) => {
+  try {
+    await prisma.project.delete({
+      where: {
+        id: id,
+      },
+    });
+    console.log("project is successfully delected.");
+    return { success: true };
+  } catch (error) {
+    console.error("error occur deleting project", error);
+    return { success: false, message: "Error occur deleting project." };
+  }
+};
+
+export { getProjects, addProject, deleteProject };

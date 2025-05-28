@@ -1,3 +1,6 @@
+import { Expense, Income, Project, Transfer } from "@prisma/client";
+import { string } from "zod";
+
 export type GetProjectModel = {
   current: ProjectWithTotalModel[] | null;
   completed: ProjectWithTotalModel[] | null;
@@ -25,3 +28,24 @@ export enum PayType {
   CASH = "CASH",
   OTHERS = "OTHERS",
 }
+
+export type Column = {
+  id: string;
+  header: string;
+};
+
+export type IncomeWtihNumberAmount = Omit<Income, "amount"> & {
+  amount: number;
+  name: string;
+  phone: string;
+};
+
+export type TransferWithProjects = Omit<Transfer, "amount"> & {
+  fromProject: { id: string; description: string };
+  toProject: { id: string; description: string };
+  amount: number;
+};
+
+export type ExpenseWtihNumberAmount = Omit<Expense, "amount"> & {
+  amount: number;
+};

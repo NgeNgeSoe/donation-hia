@@ -1,6 +1,6 @@
 import { getActiveCurrecnyByOrgID } from "@/actions/config_actions";
-import NewIncomeForm from "@/components/transaction/new-income-form";
-import { dropdownModel, PayType } from "@/types";
+import NewExpenseForm from "@/components/transaction/new-expense-form";
+import { dropdownModel } from "@/types";
 import React, { FC } from "react";
 
 const getCurrencies = async (orgId: string) => {
@@ -20,15 +20,14 @@ type PageProps = {
   };
 };
 
-const NewIncomePage: FC<PageProps> = async ({ params }) => {
+const NewExpensePage: FC<PageProps> = async ({ params }) => {
   const { id, projId } = await params;
   const currencies = await getCurrencies(id);
-
   return (
     <div>
-      <NewIncomeForm currencies={currencies} projectId={projId} orgId={id} />
+      <NewExpenseForm currencies={currencies} projectId={projId} orgId={id} />
     </div>
   );
 };
 
-export default NewIncomePage;
+export default NewExpensePage;

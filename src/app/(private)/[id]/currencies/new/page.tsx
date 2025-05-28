@@ -13,7 +13,7 @@ const NewCurrencyPage: FC<PageProps> = async ({ params }) => {
 
   return (
     <div>
-      <Label>New Currency</Label>
+      <Label className="text-xl">New Currency</Label>
       <CurrencyForm orgId={id} />
     </div>
   );

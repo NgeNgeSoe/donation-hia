@@ -53,64 +53,66 @@ const CurrencyForm = ({ orgId }: { orgId: string }) => {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem className="my-3">
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="name" {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="symbol"
-          render={({ field }) => (
-            <FormItem className="my-3">
-              <FormLabel>Symbol</FormLabel>
-              <FormControl>
-                <Input placeholder="symbol.." {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="code"
-          render={({ field }) => (
-            <FormItem className="my-3">
-              <FormLabel>Code</FormLabel>
-              <FormControl>
-                <Input placeholder="MMK, USD,...." {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="default"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl className="my-3">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                  <FormLabel className="mb-0">Default?</FormLabel>
-                </div>
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <Button variant={"outline"}>Submit</Button>
-      </form>
-    </Form>
+    <div className="w-1/2 my-3">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem className="my-3">
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="name" {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="symbol"
+            render={({ field }) => (
+              <FormItem className="my-3">
+                <FormLabel>Symbol</FormLabel>
+                <FormControl>
+                  <Input placeholder="symbol.." {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="code"
+            render={({ field }) => (
+              <FormItem className="my-3">
+                <FormLabel>Code</FormLabel>
+                <FormControl>
+                  <Input placeholder="MMK, USD,...." {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="default"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl className="my-3">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                    <FormLabel className="mb-0">Default?</FormLabel>
+                  </div>
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <Button variant={"outline"}>Submit</Button>
+        </form>
+      </Form>
+    </div>
   );
 };
 

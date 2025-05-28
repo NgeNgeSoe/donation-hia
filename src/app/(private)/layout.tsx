@@ -33,7 +33,7 @@ export default function RootLayout({
     <OrgProvider>
       <SidebarProvider>
         <AppSidebar />
-        <main className="flex-1">
+        <main className="flex-1 mx-3">
           <SidebarTrigger />
           <ModeToggle />
           {children}

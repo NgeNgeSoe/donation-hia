@@ -11,15 +11,12 @@ type PageProps = {
 };
 
 const ProjectPage: FC<PageProps> = async ({ params }) => {
-  const { id } = params;
+  const { id } = await params;
 
   const projects = await getProjects(id);
   console.log(projects);
   return (
     <div className="m-4">
-      Project page
-      <br />
-      <br />
       <Link href={`/${id}/projects/new`}>+ New Project</Link>
       <div>
         <h2 className="text-lg my-3 font-bold">Current Projects</h2>

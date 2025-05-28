@@ -1,49 +1,41 @@
 "use client";
-import React, { use, useTransition } from "react";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
-import { useForm } from "react-hook-form";
+import { NewExpenseSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { NewIncomeSchema } from "@/schemas";
+import React, { startTransition } from "react";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "../ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
+import { Textarea } from "../ui/textarea";
 import { Input } from "../ui/input";
+import { dropdownModel } from "@/types";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { CalendarIcon, ChevronsUpDown, Check } from "lucide-react";
+import { Button } from "../ui/button";
+import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { Calendar } from "../ui/calendar";
+
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Textarea } from "../ui/textarea";
 import {
   Command,
-  CommandInput,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
   CommandList,
 } from "../ui/command";
-import { useMemberStore } from "@/lib/stores/personStore";
-import { dropdownModel, PayType } from "@/types";
-
 import { Select } from "../ui/select";
 import { SelectTrigger } from "../ui/select";
 import { SelectValue } from "../ui/select";
 import { SelectContent } from "../ui/select";
 import { SelectItem } from "../ui/select";
-import { addIncome } from "@/actions/transaction_actions";
+import { addExpense } from "@/actions/transaction_actions";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-type NewIncomeFormType = z.infer<typeof NewIncomeSchema>;
+type NewExpenseFormType = z.infer<typeof NewExpenseSchema>;
 
-const NewIncomeForm = ({
+const NewExpenseForm = ({
   currencies,
   projectId,
   orgId,
@@ -52,37 +44,36 @@ const NewIncomeForm = ({
   projectId: string;
   orgId: string;
 }) => {
-  const member = useMemberStore((state) => state.member);
   const { data: session } = useSession();
   const router = useRouter();
 
-  const form = useForm<NewIncomeFormType>({
-    resolver: zodResolver(NewIncomeSchema),
+  const form = useForm<NewExpenseFormType>({
+    resolver: zodResolver(NewExpenseSchema),
     defaultValues: {
-      memberId: member?.id,
+      description: "",
       amount: 0,
-      payType: undefined,
-      currencyId: 0,
-      transactionDate: new Date(),
-      remark: null,
-      imgUrl: null,
-      //imgUrl: "--"
       projectId: projectId,
+      transactionDate: new Date(),
+      imgUrl: null,
+      currencyId: 1, // Assuming 1 is the default currency ID
     },
   });
 
   const [open, setOpen] = React.useState(false);
-  const [ispending, startTransition] = useTransition();
 
-  const onSubmit = (data: NewIncomeFormType) => {
-    const validation = NewIncomeSchema.safeParse(data);
-
-    if (validation.success) {
+  const onSubmit = (data: NewExpenseFormType) => {
+    const validation = NewExpenseSchema.safeParse(data);
+    if (!validation.success) {
+      console.error("Validation errors:", validation.error.errors);
+      return;
+    } else {
       try {
         startTransition(async () => {
-          const income = await addIncome(data, session?.user.id!);
-
-          if (income) {
+          const newExpense = await addExpense(
+            validation.data,
+            session?.user.id!
+          );
+          if (newExpense) {
             // go to income list page
             router.push(`/${orgId}/projects/${projectId}/transactions`);
           } else {
@@ -92,18 +83,15 @@ const NewIncomeForm = ({
       } catch (error) {
         console.error("error occurred while sever fun call on form", error);
       }
-    } else {
-      console.error("Validation failed", validation.error);
-      return;
     }
   };
 
-  if (!member || !projectId) return <div>Loading...</div>;
+  if (!projectId) return <div>Loading...</div>;
 
   return (
     <Card className="w-1/2 my-3">
       <CardHeader>
-        <CardTitle>New Icome</CardTitle>
+        <CardTitle>New Expense</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -113,30 +101,32 @@ const NewIncomeForm = ({
                 onSubmit(data);
               },
               (error) => {
-                console.log("", error);
+                console.log("invlaid form error", error);
               }
             )}
             className="space-y-5"
           >
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormLabel>
-                {member?.fullName}, {member?.nickName}
-              </FormLabel>
-            </FormItem>
-            {/* Hidden form field for memberId */}
-            <FormField
-              control={form.control}
-              name="memberId"
-              render={({ field }) => (
-                <input type="hidden" {...field} value={member?.id} />
-              )}
-            />
             <FormField
               control={form.control}
               name="projectId"
               render={({ field }) => (
                 <input type="hidden" {...field} value={projectId} />
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="description"
+                      {...field}
+                      value={field.value ?? ""}
+                    />
+                  </FormControl>
+                </FormItem>
               )}
             />
             <FormField
@@ -163,75 +153,22 @@ const NewIncomeForm = ({
                 <FormItem>
                   <FormLabel>Currency</FormLabel>
                   <FormControl>
-                    <Popover open={open} onOpenChange={setOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={open}
-                          className="w-[200px] justify-between"
-                        >
-                          {field.value
-                            ? currencies.find(
-                                (currency) =>
-                                  currency.value === field.value.toString()
-                              )?.label
-                            : "Select currency..."}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[200px] p-0">
-                        <Command>
-                          <CommandInput placeholder="Search currency..." />
-                          <CommandList>
-                            <CommandEmpty>No currency found.</CommandEmpty>
-                            <CommandGroup>
-                              {currencies.map((currency) => (
-                                <CommandItem
-                                  key={currency.value}
-                                  value={currency.value}
-                                  onSelect={() => {
-                                    field.onChange(Number(currency.value));
-                                    setOpen(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      field.value.toString() === currency.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {currency.label}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="payType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Pay Type</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={(val) => field.onChange(Number(val))}
+                      value={field.value?.toString() ?? ""}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a pay type" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Object.values(PayType).map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
+                        {currencies.map((currency) => (
+                          <SelectItem
+                            key={currency.value}
+                            value={currency.value}
+                          >
+                            {currency.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -280,22 +217,6 @@ const NewIncomeForm = ({
             />
             <FormField
               control={form.control}
-              name="remark"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Remark</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="remark"
-                      {...field}
-                      value={field.value ?? ""}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="imgUrl"
               render={({ field }) => (
                 <FormItem>
@@ -316,9 +237,7 @@ const NewIncomeForm = ({
               )}
             />
             <div className="items-start">
-              <Button type="submit" variant={"outline"}>
-                Submit
-              </Button>
+              <Button variant={"outline"}>Submit</Button>
             </div>
           </form>
         </Form>
@@ -327,4 +246,4 @@ const NewIncomeForm = ({
   );
 };
 
-export default NewIncomeForm;
+export default NewExpenseForm;

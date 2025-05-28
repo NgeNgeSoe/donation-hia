@@ -30,6 +30,7 @@ import {
 } from "@/actions/party_actions";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 type NewMemberForm = z.infer<typeof NewPersonSchema>;
 
@@ -86,122 +87,130 @@ const NewMemberForm = ({ orgId }: { orgId: string }) => {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="fullName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name</FormLabel>
-              <FormControl>
-                <Input placeholder="full name" {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="nickName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nickname</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Nickame"
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phone</FormLabel>
-              <FormControl>
-                <Input placeholder="phone" {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="member"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Member?</FormLabel>
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="gender"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Gender</FormLabel>
-              <FormControl>
-                <RadioGroup value={field.value} onValueChange={field.onChange}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="MALE" id="male" />
-                    <Label htmlFor="male">Male</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="FEMALE" id="female" />
-                    <Label htmlFor="female">Female</Label>
-                  </div>
-                </RadioGroup>
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="fromDate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>From Date</FormLabel>
-              <FormControl>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] justify-start text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon />
-                      {field.value ? (
-                        format(field.value, "P")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value ?? undefined}
-                      onSelect={field.onChange}
-                      initialFocus
+    <Card className="w-1/2 my-3">
+      <CardHeader>
+        <CardTitle>New Member</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <FormField
+              control={form.control}
+              name="fullName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="full name" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="nickName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nickname</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Nickame"
+                      {...field}
+                      value={field.value ?? ""}
                     />
-                  </PopoverContent>
-                </Popover>
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        {/* <FormField
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone</FormLabel>
+                  <FormControl>
+                    <Input placeholder="phone" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="member"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Member?</FormLabel>
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gender</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="MALE" id="male" />
+                        <Label htmlFor="male">Male</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="FEMALE" id="female" />
+                        <Label htmlFor="female">Female</Label>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="fromDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>From Date</FormLabel>
+                  <FormControl>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-[240px] justify-start text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon />
+                          {field.value ? (
+                            format(field.value, "P")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value ?? undefined}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            {/* <FormField
           control={form.control}
           name="thruDate"
           render={(field) => (
@@ -238,9 +247,11 @@ const NewMemberForm = ({ orgId }: { orgId: string }) => {
             </FormItem>
           )}
         /> */}
-        <Button variant={"outline"}>Submit</Button>
-      </form>
-    </Form>
+            <Button variant={"outline"}>Submit</Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -6,6 +6,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
+import Link from "next/link";
+import AuthLink from "@/components/auth/authLink";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +41,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <ModeToggle />
+            <div className="flex justify-end items-center mx-5 my-1 gap-3">
+              <AuthLink />
+              <ModeToggle />
+            </div>
             {children}
           </ThemeProvider>
         </SessionProvider>
