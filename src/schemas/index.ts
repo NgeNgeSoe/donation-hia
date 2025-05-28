@@ -101,3 +101,11 @@ export const NewExpenseSchema = z.object({
   imgUrl: z.string().nullable(),
   currencyId: z.number(),
 });
+
+export const NewTransferSchema = z.object({
+  fromProjectId: z.string(),
+  toProjectId: z.string(),
+  amount: z.number(),
+  currencyId: z.number(),
+  transactionDate: z.coerce.date(),
+});

@@ -1,6 +1,10 @@
 "use server";
 import { prisma } from "@/lib/prisma";
-import { NewExpenseSchema, NewIncomeSchema } from "@/schemas";
+import {
+  NewExpenseSchema,
+  NewIncomeSchema,
+  NewTransferSchema,
+} from "@/schemas";
 import { z } from "zod";
 import { getPersonByUserId } from "./auth_actions";
 import { getDefault_Org_Currency } from "./party_actions";
@@ -126,4 +130,69 @@ const getExpenseByProjectId = async (projectId: string) => {
   }
 };
 
-export { addIncome, getIncomeByProjectId, addExpense, getExpenseByProjectId };
+const addTransfer = async (
+  data: z.infer<typeof NewTransferSchema>,
+  userId: string
+) => {
+  try {
+    const createdBy = await getPersonByUserId(userId);
+    const transfer = await prisma.$transaction(async (prisma) => {
+      const trans = await prisma.transaction.create({
+        data: {
+          type: "TRANSFER",
+          createdAt: new Date(),
+          projectId: data.fromProjectId,
+          transactionDate: data.transactionDate,
+          currencyId: data.currencyId,
+          createdById: createdBy?.id!,
+        },
+      });
+      const temp_transfer = await prisma.transfer.create({
+        data: {
+          id: trans.id,
+          fromProjectId: data.fromProjectId,
+          toProjectId: data.toProjectId,
+          amount: data.amount,
+        },
+      });
+
+      //condtional create transaction image if imgUrl exists
+
+      return temp_transfer;
+    });
+
+    return { ...transfer, amount: transfer.amount.toNumber() }; // Ensure amount is a number
+  } catch (error) {
+    console.error("Error adding transfer record to db:", error);
+    return null;
+  }
+};
+
+const getTransfersByProjectId = async (projectId: string) => {
+  try {
+    const transfers = await prisma.transfer.findMany({
+      where: {
+        fromProjectId: projectId,
+        transaction: {
+          projectId,
+        },
+      },
+      include: {
+        fromProject: true,
+        toProject: true,
+      },
+    });
+    return transfers;
+  } catch (error) {
+    return null;
+  }
+};
+
+export {
+  addIncome,
+  getIncomeByProjectId,
+  addExpense,
+  getExpenseByProjectId,
+  addTransfer,
+  getTransfersByProjectId,
+};

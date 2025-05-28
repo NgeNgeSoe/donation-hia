@@ -39,6 +39,7 @@ import { SelectItem } from "../ui/select";
 import { addIncome } from "@/actions/transaction_actions";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 type NewIncomeFormType = z.infer<typeof NewIncomeSchema>;
 
@@ -83,7 +84,7 @@ const NewIncomeForm = ({
 
           if (income) {
             // go to income list page
-            router.push(`/${orgId}/projects/${projectId}/income`);
+            router.push(`/${orgId}/projects/${projectId}/transactions`);
           } else {
             console.error("return null from server function");
           }
@@ -100,221 +101,229 @@ const NewIncomeForm = ({
   if (!member || !projectId) return <div>Loading...</div>;
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(
-          (data) => {
-            onSubmit(data);
-          },
-          (error) => {
-            console.log("invlaid form error", error);
-          }
-        )}
-        className="flex flex-col gap-3"
-      >
-        <FormItem>
-          <FormLabel>Name</FormLabel>
-          <FormLabel>
-            {member?.fullName}, {member?.nickName}
-          </FormLabel>
-        </FormItem>
-        {/* Hidden form field for memberId */}
-        <FormField
-          control={form.control}
-          name="memberId"
-          render={({ field }) => (
-            <input type="hidden" {...field} value={member?.id} />
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="projectId"
-          render={({ field }) => (
-            <input type="hidden" {...field} value={projectId} />
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="amount"
-          render={({ field }) => (
+    <Card className="w-1/2 my-3">
+      <CardHeader>
+        <CardTitle>New Icome</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(
+              (data) => {
+                onSubmit(data);
+              },
+              (error) => {
+                console.log("", error);
+              }
+            )}
+            className="space-y-5"
+          >
             <FormItem>
-              <FormLabel>Amount</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="amount"
-                  value={field.value ?? ""}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                />
-              </FormControl>
+              <FormLabel>Name</FormLabel>
+              <FormLabel>
+                {member?.fullName}, {member?.nickName}
+              </FormLabel>
             </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="currencyId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Currency</FormLabel>
-              <FormControl>
-                <Popover open={open} onOpenChange={setOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={open}
-                      className="w-[200px] justify-between"
-                    >
-                      {field.value
-                        ? currencies.find(
-                            (currency) =>
-                              currency.value === field.value.toString()
-                          )?.label
-                        : "Select currency..."}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Search currency..." />
-                      <CommandList>
-                        <CommandEmpty>No currency found.</CommandEmpty>
-                        <CommandGroup>
-                          {currencies.map((currency) => (
-                            <CommandItem
-                              key={currency.value}
-                              value={currency.value}
-                              onSelect={() => {
-                                field.onChange(Number(currency.value));
-                                setOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  field.value.toString() === currency.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {currency.label}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="payType"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Pay Type</FormLabel>
-              <FormControl>
-                <Select onValueChange={field.onChange} value={field.value}>
+            {/* Hidden form field for memberId */}
+            <FormField
+              control={form.control}
+              name="memberId"
+              render={({ field }) => (
+                <input type="hidden" {...field} value={member?.id} />
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="projectId"
+              render={({ field }) => (
+                <input type="hidden" {...field} value={projectId} />
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amount</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a pay type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {Object.values(PayType).map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {/* <FormMessage /> */}
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="transactionDate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Transaction Date</FormLabel>
-              <FormControl>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] justify-start text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon />
-                      {field.value ? (
-                        format(field.value, "P")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value ?? undefined}
-                      onSelect={field.onChange}
-                      initialFocus
+                    <Input
+                      type="number"
+                      placeholder="amount"
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
                     />
-                  </PopoverContent>
-                </Popover>
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="remark"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Remark</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="remark"
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="imgUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Upload Rreceipt</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  name={field.name}
-                  ref={field.ref}
-                  onBlur={field.onBlur}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] ?? null;
-                    field.onChange(file);
-                  }}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <Button type="submit" variant={"outline"}>
-          Submit
-        </Button>
-      </form>
-    </Form>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="currencyId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Currency</FormLabel>
+                  <FormControl>
+                    <Popover open={open} onOpenChange={setOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={open}
+                          className="w-[200px] justify-between"
+                        >
+                          {field.value
+                            ? currencies.find(
+                                (currency) =>
+                                  currency.value === field.value.toString()
+                              )?.label
+                            : "Select currency..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[200px] p-0">
+                        <Command>
+                          <CommandInput placeholder="Search currency..." />
+                          <CommandList>
+                            <CommandEmpty>No currency found.</CommandEmpty>
+                            <CommandGroup>
+                              {currencies.map((currency) => (
+                                <CommandItem
+                                  key={currency.value}
+                                  value={currency.value}
+                                  onSelect={() => {
+                                    field.onChange(Number(currency.value));
+                                    setOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      field.value.toString() === currency.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {currency.label}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="payType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Pay Type</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a pay type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.values(PayType).map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {/* <FormMessage /> */}
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="transactionDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Transaction Date</FormLabel>
+                  <FormControl>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-[240px] justify-start text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon />
+                          {field.value ? (
+                            format(field.value, "P")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value ?? undefined}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="remark"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Remark</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="remark"
+                      {...field}
+                      value={field.value ?? ""}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="imgUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Upload Rreceipt</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      name={field.name}
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] ?? null;
+                        field.onChange(file);
+                      }}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <div className="items-start">
+              <Button type="submit" variant={"outline"}>
+                Submit
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 };
 

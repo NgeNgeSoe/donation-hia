@@ -1,4 +1,5 @@
 import NewMemberForm from "@/components/organization/new-member-form";
+import { Label } from "@/components/ui/label";
 import React, { FC } from "react";
 
 type PageProps = {
@@ -12,7 +13,6 @@ const NewMemberPage: FC<PageProps> = async ({ params }) => {
 
   return (
     <div>
-      new member page
       <NewMemberForm orgId={id} />
     </div>
   );

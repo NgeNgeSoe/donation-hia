@@ -1,39 +1,17 @@
 import {
   getExpenseByProjectId,
   getIncomeByProjectId,
+  getTransfersByProjectId,
 } from "@/actions/transaction_actions";
 import { DataTable } from "@/components/data-table";
 import { columns } from "@/components/transaction/columns";
+import ExpenseTable from "@/components/transaction/expense-table";
+import TransferTable from "@/components/transaction/transfer-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { IncomeWtihNumberAmount } from "@/types";
+import { IncomeWtihNumberAmount, TransferWithProjects } from "@/types";
 import { Income } from "@prisma/client";
 import Link from "next/link";
 import React, { FC } from "react";
-
-async function getData(): Promise<IncomeWtihNumberAmount[]> {
-  // Fetch data from your API here.
-  return [
-    {
-      id: "728ed52f",
-      amount: 100,
-      payType: "KPAY",
-      memberId: "12345",
-      remark: "Payment for services",
-      name: "John Doe",
-      phone: "123-456-7890",
-    },
-    {
-      id: "728ed52e",
-      amount: 1000,
-      payType: "KPAY",
-      memberId: "123456",
-      remark: "Payment for services",
-      name: "John Doe 1",
-      phone: "123-456-7890",
-    },
-    // ...
-  ];
-}
 
 type PageProps = {
   params: {
@@ -42,12 +20,11 @@ type PageProps = {
   };
 };
 const ProjectTransactionPage: FC<PageProps> = async ({ params }) => {
-  const data = await getData();
   const { projId, id } = await params;
-  const data1 = await getIncomeByProjectId(projId);
+  const data = await getIncomeByProjectId(projId);
 
-  const temp: IncomeWtihNumberAmount[] = data1
-    ? data1.map((item: any) => ({
+  const temp: IncomeWtihNumberAmount[] = data
+    ? data.map((item: any) => ({
         id: item.id,
         amount:
           typeof item.amount === "number" ? item.amount : Number(item.amount),
@@ -59,16 +36,44 @@ const ProjectTransactionPage: FC<PageProps> = async ({ params }) => {
       }))
     : [];
 
-  console.log("data1", data1);
-  const expense = await getExpenseByProjectId(projId);
-  console.log("expense", expense);
+  const temp_expense = await getExpenseByProjectId(projId);
+  const expense =
+    temp_expense?.map((exp) => ({
+      id: exp.id,
+      amount: typeof exp.amount === "number" ? exp.amount : Number(exp.amount),
+      description: exp.description,
+    })) ?? [];
+
+  const temp_transfers = await getTransfersByProjectId(projId);
+  const transfers: TransferWithProjects[] = temp_transfers
+    ? temp_transfers.map((trans) => ({
+        id: trans.id,
+        amount:
+          typeof trans.amount === "number"
+            ? trans.amount
+            : Number(trans.amount),
+        fromProject: {
+          id: trans.fromProject.id,
+          description: trans.toProject.description,
+        },
+        toProject: {
+          id: trans.toProject.id,
+          description: trans.toProject.description,
+        },
+        fromProjectId: trans.fromProjectId,
+        toProjectId: trans.toProjectId,
+      }))
+    : [];
 
   return (
     <div>
       <h1>Project Transaction Page</h1>
-      <Card>
+      <Card className="mb-2">
         <CardHeader>
           <CardTitle>Incomes</CardTitle>
+          <Link href={`/${id}/projects/${projId}/search-member`}>
+            +New Income
+          </Link>
         </CardHeader>
         <CardContent>
           <DataTable columns={columns} data={temp} />
@@ -82,7 +87,18 @@ const ProjectTransactionPage: FC<PageProps> = async ({ params }) => {
           </Link>
         </CardHeader>
         <CardContent>
-          <DataTable columns={columns} data={temp} />
+          <ExpenseTable data={expense ?? []} />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Transfer</CardTitle>
+          <Link href={`/${id}/projects/${projId}/transfers/new`}>
+            +New Transfer
+          </Link>
+        </CardHeader>
+        <CardContent>
+          <TransferTable data={transfers ?? []} />
         </CardContent>
       </Card>
     </div>

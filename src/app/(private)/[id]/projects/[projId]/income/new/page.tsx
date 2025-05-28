@@ -26,7 +26,6 @@ const NewIncomePage: FC<PageProps> = async ({ params }) => {
 
   return (
     <div>
-      new income page
       <NewIncomeForm currencies={currencies} projectId={projId} orgId={id} />
     </div>
   );

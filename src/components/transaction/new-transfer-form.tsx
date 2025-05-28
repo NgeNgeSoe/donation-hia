@@ -1,79 +1,75 @@
 "use client";
-import { NewExpenseSchema } from "@/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { startTransition } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
-import { Textarea } from "../ui/textarea";
-import { Input } from "../ui/input";
-import { dropdownModel } from "@/types";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Button } from "../ui/button";
-import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
-import { Calendar } from "../ui/calendar";
-
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import React, { useTransition } from "react";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "../ui/command";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { NewTransferSchema } from "@/schemas";
+import { z } from "zod";
+import { Input } from "../ui/input";
 import { Select } from "../ui/select";
 import { SelectTrigger } from "../ui/select";
 import { SelectValue } from "../ui/select";
 import { SelectContent } from "../ui/select";
 import { SelectItem } from "../ui/select";
-import { addExpense } from "@/actions/transaction_actions";
+import { dropdownModel, ProjectWithTotalModel } from "@/types";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "../ui/button";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "../ui/calendar";
+
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { addTransfer } from "@/actions/transaction_actions";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-type NewExpenseFormType = z.infer<typeof NewExpenseSchema>;
+type NewTransferFormType = z.infer<typeof NewTransferSchema>;
 
-const NewExpenseForm = ({
+const NewTransferForm = ({
   currencies,
   projectId,
+  toProjects,
+  fromProject,
   orgId,
 }: {
   currencies: dropdownModel[];
   projectId: string;
   orgId: string;
+  toProjects: dropdownModel[];
+  fromProject: ProjectWithTotalModel;
 }) => {
   const { data: session } = useSession();
   const router = useRouter();
 
-  const form = useForm<NewExpenseFormType>({
-    resolver: zodResolver(NewExpenseSchema),
+  const form = useForm<NewTransferFormType>({
+    resolver: zodResolver(NewTransferSchema),
     defaultValues: {
-      description: "",
+      fromProjectId: projectId,
+      toProjectId: "",
       amount: 0,
-      projectId: projectId,
+      currencyId: 1,
       transactionDate: new Date(),
-      imgUrl: null,
-      currencyId: 1, // Assuming 1 is the default currency ID
     },
   });
 
-  const [open, setOpen] = React.useState(false);
+  const [ispending, startTransition] = useTransition();
 
-  const onSubmit = (data: NewExpenseFormType) => {
-    const validation = NewExpenseSchema.safeParse(data);
-    if (!validation.success) {
-      console.error("Validation errors:", validation.error.errors);
-      return;
-    } else {
+  const onSubmit = (data: NewTransferFormType) => {
+    const validation = NewTransferSchema.safeParse(data);
+    if (validation.success) {
       try {
         startTransition(async () => {
-          const newExpense = await addExpense(
-            validation.data,
-            session?.user.id!
-          );
-          if (newExpense) {
+          const transfer = await addTransfer(data, session?.user.id!);
+
+          if (transfer) {
             // go to income list page
             router.push(`/${orgId}/projects/${projectId}/transactions`);
           } else {
@@ -83,15 +79,18 @@ const NewExpenseForm = ({
       } catch (error) {
         console.error("error occurred while sever fun call on form", error);
       }
+    } else {
+      console.error("Validation failed", validation.error);
+      return;
     }
   };
 
   if (!projectId) return <div>Loading...</div>;
 
   return (
-    <Card className="w-1/2 my-3">
+    <Card className="w-1/2">
       <CardHeader>
-        <CardTitle>New Expense</CardTitle>
+        <CardTitle>New Transfer</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -101,30 +100,56 @@ const NewExpenseForm = ({
                 onSubmit(data);
               },
               (error) => {
-                console.log("invlaid form error", error);
+                console.error("invlaid form error", error);
               }
             )}
             className="space-y-5"
           >
             <FormField
               control={form.control}
-              name="projectId"
+              name="fromProjectId"
               render={({ field }) => (
-                <input type="hidden" {...field} value={projectId} />
+                <FormItem className="flex gap-5">
+                  <input type="hidden" {...field} value={field.value} />
+                  <div>
+                    <FormLabel>From Project</FormLabel>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <FormLabel>{fromProject.description}</FormLabel>
+                    <FormLabel>{fromProject.location}</FormLabel>
+                    <FormLabel>
+                      {fromProject.from.toLocaleDateString()}-
+                      {fromProject.to?.toLocaleDateString()}
+                    </FormLabel>
+                  </div>
+                </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="description"
+              name="toProjectId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>To Project</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="description"
-                      {...field}
-                      value={field.value ?? ""}
-                    />
+                    <Select
+                      onValueChange={(val) => field.onChange(val)}
+                      value={field.value?.toString() ?? ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select project" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {toProjects.map((proj) => (
+                          <SelectItem key={proj.value} value={proj.value}>
+                            {proj.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {/* <FormMessage /> */}
                   </FormControl>
                 </FormItem>
               )}
@@ -137,9 +162,10 @@ const NewExpenseForm = ({
                   <FormLabel>Amount</FormLabel>
                   <FormControl>
                     <Input
-                      type="number"
                       placeholder="amount"
-                      value={field.value ?? ""}
+                      {...field}
+                      type="number"
+                      value={field.value}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
@@ -212,32 +238,14 @@ const NewExpenseForm = ({
                       </PopoverContent>
                     </Popover>
                   </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="imgUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Upload Rreceipt</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="file"
-                      name={field.name}
-                      ref={field.ref}
-                      onBlur={field.onBlur}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0] ?? null;
-                        field.onChange(file);
-                      }}
-                    />
-                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
             <div className="items-start">
-              <Button variant={"outline"}>Submit</Button>
+              <Button type="submit" variant={"outline"}>
+                Submit
+              </Button>
             </div>
           </form>
         </Form>
@@ -246,4 +254,4 @@ const NewExpenseForm = ({
   );
 };
 
-export default NewExpenseForm;
+export default NewTransferForm;

@@ -34,13 +34,15 @@ const MemberTable: FC<Props> = ({ data, url }) => {
         <RenderHeaderRow />
       </TableHeader>
       <TableBody>
-        {data.map((item) => (
-          <RenderTableRow
-            key={item.id}
-            item={item}
-            onHandle={(e) => onHandleSelect(e)}
-          />
-        ))}
+        {url
+          ? data.map((item) => (
+              <RenderTableRow
+                key={item.id}
+                item={item}
+                onHandle={(e) => onHandleSelect(e)}
+              />
+            ))
+          : data.map((item) => <RenderTableRow key={item.id} item={item} />)}
       </TableBody>
     </Table>
   );

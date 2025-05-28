@@ -25,7 +25,6 @@ const NewExpensePage: FC<PageProps> = async ({ params }) => {
   const currencies = await getCurrencies(id);
   return (
     <div>
-      <h1>New expense form</h1>
       <NewExpenseForm currencies={currencies} projectId={projId} orgId={id} />
     </div>
   );

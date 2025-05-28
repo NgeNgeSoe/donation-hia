@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { getMembersByTerms } from "@/actions/party_actions";
 import { Person } from "@prisma/client";
 import MemberTable from "../organization/member-table";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 type SerachBoxProps = {
   orgId: string;
@@ -26,21 +27,36 @@ const SearBox: FC<SerachBoxProps> = ({ orgId, projectId }) => {
 
   return (
     <div>
-      <Input
-        type="text"
-        placeholder="enter name"
-        value={str}
-        onChange={(e) => setStr(e.target.value)}
-      />
-      <Button variant={"outline"} onClick={handleSearch}>
-        Search
-      </Button>
+      <Card className="w-1/2 my-3">
+        <CardHeader>
+          <CardTitle>Serach Member</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col gap-3 items-start">
+            <Input
+              type="text"
+              placeholder="enter name"
+              value={str}
+              onChange={(e) => setStr(e.target.value)}
+            />
+            <Button variant={"outline"} onClick={handleSearch}>
+              Search
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {isPending ? <p>...loading</p> : null}
+
       {members && members.length > 0 && (
-        <MemberTable
-          data={members}
-          url={`/${orgId}/projects/${projectId}/income/new`}
-        />
+        <Card>
+          <CardContent>
+            <MemberTable
+              data={members}
+              url={`/${orgId}/projects/${projectId}/income/new`}
+            />
+          </CardContent>
+        </Card>
       )}
       {members && members.length === 0 && <p>no memebers found</p>}
     </div>
