@@ -18,14 +18,13 @@ type PageProps = {
 };
 
 const MemberPage: FC<PageProps> = async ({ params }) => {
-  const { id } = params;
+  const { id } = await params;
 
   // get members
   const members = await getMemberByOrganizationId(id);
 
   return (
     <div>
-      <br />
       <Link href={`/${id}/members/new`}>+ New member</Link>
       <br />
       <br></br>

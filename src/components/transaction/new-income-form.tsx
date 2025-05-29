@@ -40,6 +40,7 @@ import { addIncome } from "@/actions/transaction_actions";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import Link from "next/link";
 
 type NewIncomeFormType = z.infer<typeof NewIncomeSchema>;
 
@@ -66,7 +67,6 @@ const NewIncomeForm = ({
       transactionDate: new Date(),
       remark: null,
       imgUrl: null,
-      //imgUrl: "--"
       projectId: projectId,
     },
   });
@@ -111,6 +111,7 @@ const NewIncomeForm = ({
             onSubmit={form.handleSubmit(
               (data) => {
                 onSubmit(data);
+                //console.log("data validation ", data);
               },
               (error) => {
                 console.log("", error);
@@ -312,13 +313,17 @@ const NewIncomeForm = ({
                       }}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
-            <div className="items-start">
+            <div className="flex gap-3">
               <Button type="submit" variant={"outline"}>
                 Submit
               </Button>
+              <Link href={`/${orgId}/projects/${projectId}/transactions`}>
+                <Button variant={"secondary"}> Cancel</Button>
+              </Link>
             </div>
           </form>
         </Form>

@@ -5,9 +5,10 @@ import {
   NewIncomeSchema,
   NewTransferSchema,
 } from "@/schemas";
-import { z } from "zod";
+import { string, z } from "zod";
 import { getPersonByUserId } from "./auth_actions";
-import { getDefault_Org_Currency } from "./party_actions";
+import { promises as fs } from "fs";
+import path from "path";
 
 const addIncome = async (
   data: z.infer<typeof NewIncomeSchema>,
@@ -36,11 +37,30 @@ const addIncome = async (
         },
       });
       //condtional create transaction image if imgUrl exists
-      if (data.imgUrl) {
+      if (!!data.imgUrl) {
+        //check file name exist
+        let fileName = data.imgUrl.name;
+        const filePath = path.join(process.cwd(), "public", "img", fileName);
+
+        try {
+          await fs.stat(filePath);
+          //if file exist rename
+          const timestamp = Date.now();
+          fileName = `${timestamp}-${data.imgUrl.name}`;
+        } catch (error) {
+          // throws an error if the file doesn't exist,
+        }
+
+        const temp_data = await data.imgUrl.arrayBuffer();
+        await fs.writeFile(
+          `${process.cwd()}/public/img/${fileName}`,
+          Buffer.from(temp_data)
+        );
+
         await prisma.transactionFile.create({
           data: {
             transactionId: trans.id,
-            imageUrl: data.imgUrl,
+            imageUrl: fileName,
           },
         });
       }
@@ -98,10 +118,24 @@ const addExpense = async (
       });
       //condtional create transaction image if imgUrl exists
       if (data.imgUrl) {
+        let fileName = data.imgUrl.name;
+
+        const filePath = path.join(process.cwd(), "public", "img", fileName);
+        try {
+          await fs.stat(filePath);
+          const timestamp = Date.now();
+          fileName = `${timestamp}-${data.imgUrl.name}`;
+        } catch (error) {}
+        const temp_data = await data.imgUrl.arrayBuffer();
+        await fs.writeFile(
+          `${process.cwd()}/public/img/${fileName}`,
+          Buffer.from(temp_data)
+        );
+
         await prisma.transactionFile.create({
           data: {
             transactionId: trans.id,
-            imageUrl: data.imgUrl,
+            imageUrl: fileName,
           },
         });
       }

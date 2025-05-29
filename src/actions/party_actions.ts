@@ -76,6 +76,42 @@ const addPerson = async (
     return null;
   }
 };
+const updatePerson = async (
+  id: string,
+  data: z.infer<typeof NewPersonSchema>
+) => {
+  try {
+    const updated = await prisma.person.update({
+      where: { id },
+      data: {
+        fullName: data.fullName,
+        nickName: data.nickName ?? "N/A",
+        phone: data.phone,
+        member: data.member,
+        gender: data.gender,
+        fromDate: data.fromDate!,
+        thruDate: data.thruDate,
+      },
+    });
+    return updated;
+  } catch (error) {
+    console.error("error occured update member", error);
+    return null;
+  }
+};
+const getPersonById = async (id: string) => {
+  try {
+    const person = await prisma.person.findUnique({
+      where: {
+        id,
+      },
+    });
+    return person;
+  } catch (error) {
+    console.error("error occur getting person");
+    return null;
+  }
+};
 
 const addUserPerson = async (partyId: string) => {
   try {
@@ -202,6 +238,8 @@ const getDefault_Org_Currency = async (orgId: string) => {
 export {
   addOrganization,
   addPerson,
+  getPersonById,
+  updatePerson,
   addUserPerson,
   addPersonRole,
   getRoleByTerms,

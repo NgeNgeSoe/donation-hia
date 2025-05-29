@@ -27,27 +27,36 @@ import {
   addPerson,
   addPersonRole,
   getRoleByTerms,
+  updatePerson,
 } from "@/actions/party_actions";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Person } from "@prisma/client";
+import Link from "next/link";
 
 type NewMemberForm = z.infer<typeof NewPersonSchema>;
 
-const NewMemberForm = ({ orgId }: { orgId: string }) => {
+const NewMemberForm = ({
+  orgId,
+  member,
+}: {
+  orgId: string;
+  member?: Person;
+}) => {
   const router = useRouter();
   const { data: session } = useSession();
 
   const form = useForm<NewMemberForm>({
     resolver: zodResolver(NewPersonSchema),
     defaultValues: {
-      fullName: "",
-      nickName: "",
-      phone: "",
-      member: true,
-      gender: "MALE",
-      fromDate: null,
-      thruDate: null,
+      fullName: member?.fullName ?? "",
+      nickName: member?.nickName ?? "",
+      phone: member?.phone ?? "",
+      member: member?.member ?? true,
+      gender: member?.gender ?? "MALE",
+      fromDate: member?.fromDate ?? null,
+      thruDate: member?.thruDate ?? null,
     },
   });
 
@@ -56,29 +65,37 @@ const NewMemberForm = ({ orgId }: { orgId: string }) => {
     console.log("data", validation);
     if (validation.success) {
       //handle success
-      const person = await addPerson(data, orgId);
+      let person;
+      if (member?.id) {
+        //update
+        person = await updatePerson(member.id, data);
+        console.log(" update member");
+      } else {
+        person = await addPerson(data, orgId);
+        console.log(" adding member");
+        const role = await getRoleByTerms("member");
+        if (!role) {
+          console.log("member role isn't found!");
+        }
+
+        //add personroll
+        const personRole = await addPersonRole(
+          orgId,
+          role?.id!,
+          person?.id!,
+          session?.user.id!
+        );
+        if (personRole) {
+          console.log("success adding role to person");
+          //redirect to member page
+        } else {
+          console.error("error occur adding role to person");
+        }
+      }
       if (!person) {
         console.log("error adding member");
-      }
-
-      const role = await getRoleByTerms("member");
-      if (!role) {
-        console.log("member role isn't found!");
-      }
-
-      //add personroll
-      const personRole = await addPersonRole(
-        orgId,
-        role?.id!,
-        person?.id!,
-        session?.user.id!
-      );
-      if (personRole) {
-        console.log("success adding role to person");
-        //redirect to member page
-        router.replace(`/${orgId}/members`);
       } else {
-        console.error("error occur adding role to person");
+        router.replace(`/${orgId}/members`);
       }
     } else {
       //handle error
@@ -89,7 +106,7 @@ const NewMemberForm = ({ orgId }: { orgId: string }) => {
   return (
     <Card className="w-1/2 my-3">
       <CardHeader>
-        <CardTitle>New Member</CardTitle>
+        <CardTitle>{member ? "Edit Member" : "New Member"}</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -210,44 +227,14 @@ const NewMemberForm = ({ orgId }: { orgId: string }) => {
                 </FormItem>
               )}
             />
-            {/* <FormField
-          control={form.control}
-          name="thruDate"
-          render={(field) => (
-            <FormItem>
-              <FormLabel>Thru Date</FormLabel>
-              <FormControl>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] justify-start text-left font-normal",
-                        !thruDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon />
-                      {thruDate ? (
-                        format(thruDate, "P")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={thruDate}
-                      onSelect={setThruDate}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </FormControl>
-            </FormItem>
-          )}
-        /> */}
-            <Button variant={"outline"}>Submit</Button>
+            <div className="flex gap-2">
+              <Button type="submit" variant={"outline"}>
+                Submit
+              </Button>
+              <Link href={`/${orgId}/members`}>
+                <Button variant={"secondary"}>Cancel</Button>
+              </Link>
+            </div>
           </form>
         </Form>
       </CardContent>

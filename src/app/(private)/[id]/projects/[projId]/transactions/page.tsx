@@ -8,6 +8,7 @@ import { columns } from "@/components/transaction/columns";
 import ExpenseTable from "@/components/transaction/expense-table";
 import TransferTable from "@/components/transaction/transfer-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { IncomeWtihNumberAmount, TransferWithProjects } from "@/types";
 import { Income } from "@prisma/client";
 import Link from "next/link";
@@ -67,7 +68,7 @@ const ProjectTransactionPage: FC<PageProps> = async ({ params }) => {
 
   return (
     <div>
-      <h1>Project Transaction Page</h1>
+      <Label className="text-xl my-2">Project Transaction</Label>
       <Card className="mb-2">
         <CardHeader>
           <CardTitle>Incomes</CardTitle>

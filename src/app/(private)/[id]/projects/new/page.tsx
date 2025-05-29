@@ -11,7 +11,6 @@ const NewProjectPage: FC<PageProps> = async ({ params }) => {
   const { id } = await params;
   return (
     <div>
-      New Project Page
       <NewProjectForm orgId={id} />
     </div>
   );
