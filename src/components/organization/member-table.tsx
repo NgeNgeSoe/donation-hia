@@ -14,7 +14,8 @@ import { Checkbox } from "../ui/checkbox";
 import Link from "next/link";
 import { useMemberStore } from "@/lib/stores/personStore";
 import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { Edit } from "lucide-react";
 
 type Props = {
   data: Person[];
@@ -23,6 +24,8 @@ type Props = {
 const MemberTable: FC<Props> = ({ data, url }) => {
   const setMember = useMemberStore((state) => state.setMember);
   const router = useRouter();
+  const params = useParams();
+  const orgId = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const onHandleSelect = (member: Person) => {
     setMember(member);
@@ -40,9 +43,12 @@ const MemberTable: FC<Props> = ({ data, url }) => {
                 key={item.id}
                 item={item}
                 onHandle={(e) => onHandleSelect(e)}
+                orgId={orgId!}
               />
             ))
-          : data.map((item) => <RenderTableRow key={item.id} item={item} />)}
+          : data.map((item) => (
+              <RenderTableRow key={item.id} item={item} orgId={orgId!} />
+            ))}
       </TableBody>
     </Table>
   );
@@ -64,8 +70,10 @@ const RenderHeaderRow = () => (
 const RenderTableRow = ({
   item,
   onHandle,
+  orgId,
 }: {
   item: Person;
+  orgId: string;
   onHandle?: (item: Person) => void;
 }) => {
   return (
@@ -83,11 +91,17 @@ const RenderTableRow = ({
       <TableCell className="w-[100px]">
         {item.thruDate ? new Date(item.thruDate).toLocaleDateString() : "-"}
       </TableCell>
-      {onHandle && (
+      {onHandle ? (
         <TableCell className="w-[100px]">
           <Button variant={"outline"} onClick={() => onHandle(item)}>
             Select
           </Button>
+        </TableCell>
+      ) : (
+        <TableCell>
+          <Link href={`/${orgId}/members/edit/${item.id}`}>
+            <Edit size={15} />
+          </Link>
         </TableCell>
       )}
     </TableRow>

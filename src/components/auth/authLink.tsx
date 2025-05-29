@@ -5,7 +5,14 @@ import React from "react";
 
 const AuthLink = () => {
   const { data: session } = useSession();
-  if (session?.user) return null;
+  if (session?.user)
+    return (
+      <>
+        <div>
+          <Link href={`/dashboard`}>Dashboard</Link>
+        </div>
+      </>
+    );
 
   return (
     <>

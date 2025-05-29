@@ -74,9 +74,11 @@ const ProjectItem: FC<ProjectProps> = ({ item, orgId }) => {
       </CardContent>
       <CardFooter>
         <div className="flex flex-1 flex-wrap gap-2 justify-end">
-          <Button variant={"outline"}>
-            <SquarePen /> Edit
-          </Button>
+          <Link href={`/${orgId}/projects/${item.id}/edit`}>
+            <Button variant={"outline"}>
+              <SquarePen /> Edit
+            </Button>
+          </Link>
           <Link href={`/${orgId}/projects/${item.id}/transactions`}>
             <Button variant={"outline"}>
               <EyeIcon /> View

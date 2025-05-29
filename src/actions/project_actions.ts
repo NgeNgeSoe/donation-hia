@@ -6,6 +6,7 @@ import { ProjectWithTotalModel } from "@/types";
 import { TransactionType } from "@prisma/client";
 import { z } from "zod";
 import { getPersonByUserId } from "./auth_actions";
+import { LucideNewspaper } from "lucide-react";
 
 const getProjects = async (organizationId: string) => {
   try {
@@ -74,6 +75,27 @@ const getProjects = async (organizationId: string) => {
     return null;
   }
 };
+const getProjectById = async (id: string) => {
+  try {
+    const project = await prisma.project.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return {
+      id: project?.id,
+      description: project?.description,
+      location: project?.location,
+      from: project?.fromDate,
+      to: project?.thruDate,
+      openingAmount: project?.openingBalance.toNumber(),
+    } as ProjectWithTotalModel;
+  } catch (error) {
+    console.error("error occur getting project");
+    return null;
+  }
+};
 
 const addProject = async (
   data: z.infer<typeof NewProjectSchema>,
@@ -104,6 +126,33 @@ const addProject = async (
   }
 };
 
+const updateProject = async (
+  id: string,
+  data: z.infer<typeof NewProjectSchema>
+) => {
+  try {
+    const updated = await prisma.project.update({
+      where: {
+        id,
+      },
+      data: {
+        description: data.description,
+        location: data.location,
+        fromDate: data.fromDate,
+        thruDate: data.thruDate,
+        openingBalance: data.openingAmount,
+      },
+    });
+    return {
+      ...updated,
+      openingBalance: updated.openingBalance.toNumber(),
+    };
+  } catch (error) {
+    console.error("error occur updating project");
+    return null;
+  }
+};
+
 const deleteProject = async (id: string) => {
   try {
     await prisma.project.delete({
@@ -119,4 +168,10 @@ const deleteProject = async (id: string) => {
   }
 };
 
-export { getProjects, addProject, deleteProject };
+export {
+  getProjects,
+  getProjectById,
+  addProject,
+  deleteProject,
+  updateProject,
+};

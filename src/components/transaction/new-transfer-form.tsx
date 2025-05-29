@@ -30,6 +30,7 @@ import { addTransfer } from "@/actions/transaction_actions";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import Link from "next/link";
 
 type NewTransferFormType = z.infer<typeof NewTransferSchema>;
 
@@ -242,10 +243,13 @@ const NewTransferForm = ({
                 </FormItem>
               )}
             />
-            <div className="items-start">
+            <div className="flex gap-3">
               <Button type="submit" variant={"outline"}>
                 Submit
               </Button>
+              <Link href={`/${orgId}/projects/${projectId}/transactions`}>
+                <Button>Cancel</Button>
+              </Link>
             </div>
           </form>
         </Form>
