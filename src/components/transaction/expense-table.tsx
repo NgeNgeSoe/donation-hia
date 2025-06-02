@@ -1,39 +1,27 @@
-import { Expense } from "@prisma/client";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
+"use client";
 
 import React from "react";
 import { ExpenseWtihNumberAmount } from "@/types";
+import { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "../data-table";
+
+const expneseColumns: ColumnDef<ExpenseWtihNumberAmount>[] = [
+  { accessorKey: "id", header: "ID", cell: (info) => info.getValue() },
+  {
+    accessorKey: "description",
+    header: "Description",
+    cell: (info) => info.getValue(),
+  },
+  { accessorKey: "amount", header: "Amount", cell: (info) => info.getValue() },
+];
 
 const ExpenseTable = ({ data }: { data: ExpenseWtihNumberAmount[] }) => {
   return (
-    <Table>
-      <TableCaption>A list of project expense</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[100px]">Description</TableHead>
-          <TableHead>Amount</TableHead>
-
-          <TableHead className="text-right"></TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.map((expense) => (
-          <TableRow key={expense.id}>
-            <TableCell className="font-medium">{expense.description}</TableCell>
-            <TableCell>{expense.amount}</TableCell>
-            <TableCell className="text-right"> view file</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <DataTable
+      data={data}
+      columns={expneseColumns}
+      filterColumn="description"
+    />
   );
 };
 

@@ -1,7 +1,6 @@
 import { getActiveCurrecnyByOrgID } from "@/actions/config_actions";
 import { getProjects } from "@/actions/project_actions";
 import NewTransferForm from "@/components/transaction/new-transfer-form";
-import { Label } from "@/components/ui/label";
 import { dropdownModel } from "@/types";
 import React, { FC } from "react";
 
@@ -38,7 +37,7 @@ const NewTransfer: FC<PageProps> = async ({ params }) => {
 
   const from_project = all_projects?.current.find((e) => e.id === projId);
   if (from_project === undefined) {
-    return <div>From project doesn't exist! </div>;
+    return <div>From project does not exist! </div>;
   }
 
   return (

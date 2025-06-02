@@ -5,7 +5,6 @@ const NewOrganizationPage = () => {
 
   return (
     <div>
-      New organization Form
       <NewOrganizationForm />
     </div>
   );

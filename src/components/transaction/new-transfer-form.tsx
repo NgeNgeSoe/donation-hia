@@ -48,6 +48,9 @@ const NewTransferForm = ({
   fromProject: ProjectWithTotalModel;
 }) => {
   const { data: session } = useSession();
+  if (!session?.user) {
+    return <div>No login user found</div>;
+  }
   const router = useRouter();
 
   const form = useForm<NewTransferFormType>({
@@ -68,7 +71,7 @@ const NewTransferForm = ({
     if (validation.success) {
       try {
         startTransition(async () => {
-          const transfer = await addTransfer(data, session?.user.id!);
+          const transfer = await addTransfer(data, session?.user.id);
 
           if (transfer) {
             // go to income list page

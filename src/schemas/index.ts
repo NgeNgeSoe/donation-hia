@@ -17,9 +17,9 @@ export const RegisterSchema = z.object({
   }),
 });
 
-const envSchema = z.object({
-  AUTH_SECRET: z.string(),
-});
+// const envSchema = z.object({
+//   AUTH_SECRET: z.string(),
+// });
 
 //export const env_var = envSchema.parse(process.env);
 

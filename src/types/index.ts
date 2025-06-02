@@ -1,5 +1,4 @@
-import { Expense, Income, Project, Transfer } from "@prisma/client";
-import { string } from "zod";
+import { Expense, Income, Transfer } from "@prisma/client";
 
 export type GetProjectModel = {
   current: ProjectWithTotalModel[] | null;

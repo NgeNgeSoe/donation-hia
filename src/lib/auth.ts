@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import { NextAuth } from "next-auth/next";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import authConfig from "./auth.config";
@@ -7,7 +7,6 @@ import {
   getOrganizationByUserId,
   getUserById,
 } from "@/actions/auth_actions";
-import { get } from "http";
 
 export const {
   auth,
@@ -26,7 +25,7 @@ export const {
         return true;
       }
 
-      const existingUser = await getUserById(user.id ?? "");
+      //const existingUser = await getUserById(user.id ?? "");
 
       //use these code after adding email verification feature
       // if (!existingUser?.emailVerified) {

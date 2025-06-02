@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useTransition } from "react";
+import React, { useTransition } from "react";
 import {
   Form,
   FormControl,
@@ -55,6 +55,9 @@ const NewIncomeForm = ({
 }) => {
   const member = useMemberStore((state) => state.member);
   const { data: session } = useSession();
+  if (!session?.user) {
+    return <div>No login user found!</div>;
+  }
   const router = useRouter();
 
   const form = useForm<NewIncomeFormType>({
@@ -80,7 +83,7 @@ const NewIncomeForm = ({
     if (validation.success) {
       try {
         startTransition(async () => {
-          const income = await addIncome(data, session?.user.id!);
+          const income = await addIncome(data, session?.user.id);
 
           if (income) {
             // go to income list page

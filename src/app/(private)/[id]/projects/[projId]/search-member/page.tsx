@@ -1,5 +1,4 @@
 import SearBox from "@/components/project/search-box";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { FC } from "react";
 
 type PageProps = {

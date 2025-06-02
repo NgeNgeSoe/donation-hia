@@ -9,16 +9,14 @@ import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { addCurrency } from "@/actions/config_actions";
-import { getPersonByUserId } from "@/actions/auth_actions";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 type CurrencyFormType = z.infer<typeof NewCurrencySchema>;
 
 const CurrencyForm = ({ orgId }: { orgId: string }) => {
-  console.log("vcurr fro,m", orgId);
-  const { data: session } = useSession();
   const router = useRouter();
+  const { data: session } = useSession();
 
   const form = useForm<CurrencyFormType>({
     resolver: zodResolver(NewCurrencySchema),
@@ -35,11 +33,13 @@ const CurrencyForm = ({ orgId }: { orgId: string }) => {
     if (validation.success) {
       try {
         // save currency
-
+        if (!session?.user || !session.user.id) {
+          return <div>no session user found. You should login again.</div>;
+        }
         const newCurrency = await addCurrency(
           validation.data,
           orgId,
-          session?.user.id!
+          session.user.id
         );
         if (newCurrency) {
           router.replace(`/${orgId}/currencies`);

@@ -4,7 +4,6 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,12 +22,14 @@ import {
   getRoleByTerms,
 } from "@/actions/party_actions";
 
-import { useSession, SessionProvider } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Gender } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 const NewOrganizationForm = () => {
   const session = useSession();
+
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
@@ -42,6 +43,10 @@ const NewOrganizationForm = () => {
       logo: "",
     },
   });
+
+  if (!session.data?.user || !session.data?.user?.id) {
+    return <div>not found login user</div>;
+  }
 
   const toCreatePerson: z.infer<typeof NewPersonSchema> = {
     fullName: session.data?.user.name ?? "",
@@ -67,6 +72,10 @@ const NewOrganizationForm = () => {
                 console.log("added person", res);
                 //get admin role
                 const role = await getRoleByTerms("admin");
+                if (!role) {
+                  console.error("no admin role foud");
+                  return null;
+                }
                 //add userperson and role
                 addUserPerson(res.id).then(async (res) => {
                   if (res && !("error" in res)) {
@@ -74,9 +83,9 @@ const NewOrganizationForm = () => {
                     console.log("added user person", res);
                     addPersonRole(
                       orgId,
-                      role?.id!,
+                      role?.id,
                       res.personId,
-                      session.data?.user.id!
+                      session.data?.user?.id!
                     ).then((res) => {
                       if (res && !("error" in res)) {
                         // success registeration
@@ -102,6 +111,7 @@ const NewOrganizationForm = () => {
         })
         .catch((err) => {
           setError("An unexpected error occurred.");
+          console.error(err);
         })
         .finally(() => {
           setLoading(false);
@@ -114,68 +124,83 @@ const NewOrganizationForm = () => {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="name" {...field} />
-              </FormControl>
-
-              <FormMessage />
-            </FormItem>
+    <div className="flex justify-center items-center min-h-screen">
+      <Card className="w-1/3">
+        <CardHeader>
+          <CardTitle> New organization Form</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading && (
+            <div className="mb-4 text-center text-blue-600">Submitting...</div>
           )}
-        />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="description"
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          {error && (
+            <div className="mb-4 text-center text-red-600">{error}</div>
           )}
-        />
-        <FormField
-          control={form.control}
-          name="logo"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Logo</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  onChange={(e) => {
-                    // handle file selection, e.g., store file name or file object
-                    field.onChange(e.target.files?.[0]?.name || "");
-                  }}
-                  onBlur={field.onBlur}
-                  name={field.name}
-                  ref={field.ref}
-                />
-              </FormControl>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="name" {...field} />
+                    </FormControl>
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="description"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="logo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Logo</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        onChange={(e) => {
+                          // handle file selection, e.g., store file name or file object
+                          field.onChange(e.target.files?.[0]?.name || "");
+                        }}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        ref={field.ref}
+                      />
+                    </FormControl>
 
-        <Button variant={"outline"} type="submit">
-          Submit
-        </Button>
-      </form>
-    </Form>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button variant={"outline"} type="submit">
+                Submit
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

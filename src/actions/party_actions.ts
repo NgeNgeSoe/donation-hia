@@ -62,7 +62,7 @@ const addPerson = async (
     });
 
     //add organization person
-    const org_person = await prisma.organizationPerson.create({
+    await prisma.organizationPerson.create({
       data: {
         organizationId: orgId,
         personId: party.id,
@@ -108,7 +108,7 @@ const getPersonById = async (id: string) => {
     });
     return person;
   } catch (error) {
-    console.error("error occur getting person");
+    console.error("error occur getting person", error);
     return null;
   }
 };
@@ -116,9 +116,12 @@ const getPersonById = async (id: string) => {
 const addUserPerson = async (partyId: string) => {
   try {
     const session = await auth();
+    if (!session?.user) {
+      throw new Error("session user not found");
+    }
     const userPerson = await prisma.userPerson.create({
       data: {
-        userId: session?.user.id!,
+        userId: session?.user.id,
         personId: partyId,
       },
     });
@@ -142,13 +145,15 @@ const addPersonRole = async (
         userId,
       },
     });
-
+    if (!userperson) {
+      throw new Error("no user person by user id");
+    }
     const personRole = await prisma.personRole.create({
       data: {
         personId,
         roleId,
         organizationId,
-        createdById: userperson?.personId!,
+        createdById: userperson?.personId,
       },
     });
     return personRole;
@@ -161,7 +166,7 @@ const getRoleByTerms = async (terms: string) => {
   try {
     const role = await prisma.role.findFirst({
       where: {
-        name: "admin",
+        name: terms,
       },
     });
 
@@ -189,7 +194,7 @@ const getMemberByOrganizationId = async (orgId: string) => {
 
     return result.map((org) => org.person);
   } catch (error) {
-    console.error("error occuring get members server action");
+    console.error("error occuring get members server action", error);
   }
 };
 
@@ -215,7 +220,7 @@ const getMembersByTerms = async (orgId: string, str: string) => {
     });
     return members;
   } catch (error) {
-    console.error("error occuring search member");
+    console.error("error occuring search member", error);
     return null;
   }
 };
@@ -230,7 +235,7 @@ const getDefault_Org_Currency = async (orgId: string) => {
     });
     return default_currency;
   } catch (error) {
-    console.error("error occuring get default org currency");
+    console.error("error occuring get default org currency", error);
     return null;
   }
 };

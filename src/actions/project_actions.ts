@@ -6,7 +6,6 @@ import { ProjectWithTotalModel } from "@/types";
 import { TransactionType } from "@prisma/client";
 import { z } from "zod";
 import { getPersonByUserId } from "./auth_actions";
-import { LucideNewspaper } from "lucide-react";
 
 const getProjects = async (organizationId: string) => {
   try {
@@ -92,7 +91,7 @@ const getProjectById = async (id: string) => {
       openingAmount: project?.openingBalance.toNumber(),
     } as ProjectWithTotalModel;
   } catch (error) {
-    console.error("error occur getting project");
+    console.error("error occur getting project", error);
     return null;
   }
 };
@@ -104,13 +103,16 @@ const addProject = async (
 ) => {
   try {
     const createdBy = await getPersonByUserId(userId);
+    if (!createdBy) {
+      throw new Error("not found person by user id");
+    }
 
     const newProject = await prisma.project.create({
       data: {
         description: data.description,
         location: data.location,
         createdAt: new Date(),
-        createdById: createdBy?.id!,
+        createdById: createdBy?.id,
         fromDate: data.fromDate,
         thruDate: data.thruDate,
         organizationId,
@@ -148,7 +150,7 @@ const updateProject = async (
       openingBalance: updated.openingBalance.toNumber(),
     };
   } catch (error) {
-    console.error("error occur updating project");
+    console.error("error occur updating project", error);
     return null;
   }
 };

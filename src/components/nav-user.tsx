@@ -25,8 +25,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useActionState } from "react";
-import { logout } from "@/actions/register_action";
 import { signOut } from "next-auth/react";
 
 export function NavUser({

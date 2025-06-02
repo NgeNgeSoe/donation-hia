@@ -27,22 +27,30 @@ import { Input } from "@/components/ui/input";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  filterColumn?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  filterColumn = "name", /// default to 'name'
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
   const [rowSelection, setRowSelection] = React.useState({});
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination,
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
@@ -52,6 +60,7 @@ export function DataTable<TData, TValue>({
       sorting,
       columnFilters,
       rowSelection,
+      pagination,
     },
   });
 
@@ -59,10 +68,12 @@ export function DataTable<TData, TValue>({
     <div>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter members..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          placeholder={`Filter ${filterColumn}...`}
+          value={
+            (table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn(filterColumn)?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -99,7 +110,7 @@ export function DataTable<TData, TValue>({
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
-                      )}
+                      )}{" "}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -126,6 +137,10 @@ export function DataTable<TData, TValue>({
         >
           Previous
         </Button>
+        <span>
+          Page {table.getState().pagination.pageIndex + 1} of{" "}
+          {table.getPageCount()}
+        </span>
         <Button
           variant="outline"
           size="sm"

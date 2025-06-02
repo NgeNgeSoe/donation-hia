@@ -1,6 +1,6 @@
 import { getActiveCurrecnyByOrgID } from "@/actions/config_actions";
 import NewIncomeForm from "@/components/transaction/new-income-form";
-import { dropdownModel, PayType } from "@/types";
+import { dropdownModel } from "@/types";
 import React, { FC } from "react";
 
 const getCurrencies = async (orgId: string) => {
