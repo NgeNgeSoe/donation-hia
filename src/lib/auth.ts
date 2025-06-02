@@ -1,4 +1,4 @@
-import { NextAuth } from "next-auth/next";
+import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import authConfig from "./auth.config";
@@ -7,6 +7,23 @@ import {
   getOrganizationByUserId,
   getUserById,
 } from "@/actions/auth_actions";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      orgId?: string | null;
+      isOauth: boolean;
+      image?: string | null;
+    };
+  }
+
+  interface JWT {
+    orgId?: string | null;
+  }
+}
 
 export const {
   auth,
@@ -20,7 +37,7 @@ export const {
   },
   ...authConfig,
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ account }) {
       if (account?.provider !== "credentials") {
         return true;
       }

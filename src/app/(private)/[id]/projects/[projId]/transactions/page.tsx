@@ -14,10 +14,10 @@ import Link from "next/link";
 import React, { FC } from "react";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     projId: string;
     id: string;
-  };
+  }>;
 };
 const ProjectTransactionPage: FC<PageProps> = async ({ params }) => {
   const { projId, id } = await params;

@@ -7,7 +7,7 @@ import { DataTable } from "../data-table";
 
 type Props = {
   data: Person[];
-  // url?: string;
+  url?: string;
 };
 
 const memeberColumns: ColumnDef<Person>[] = [

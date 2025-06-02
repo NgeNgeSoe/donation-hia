@@ -55,11 +55,7 @@ const NewIncomeForm = ({
 }) => {
   const member = useMemberStore((state) => state.member);
   const { data: session } = useSession();
-  if (!session?.user) {
-    return <div>No login user found!</div>;
-  }
   const router = useRouter();
-
   const form = useForm<NewIncomeFormType>({
     resolver: zodResolver(NewIncomeSchema),
     defaultValues: {
@@ -76,6 +72,10 @@ const NewIncomeForm = ({
 
   const [open, setOpen] = React.useState(false);
   const [ispending, startTransition] = useTransition();
+
+  if (!session?.user) {
+    return <div>No login user found!</div>;
+  }
 
   const onSubmit = (data: NewIncomeFormType) => {
     const validation = NewIncomeSchema.safeParse(data);
@@ -101,12 +101,12 @@ const NewIncomeForm = ({
     }
   };
 
-  if (!member || !projectId) return <div>Loading...</div>;
+  if (!member || !projectId || ispending) return <div>Loading...</div>;
 
   return (
     <Card className="w-1/2 my-3">
       <CardHeader>
-        <CardTitle>New Icome</CardTitle>
+        <CardTitle>New Income</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>

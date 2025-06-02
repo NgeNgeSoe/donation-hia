@@ -2,10 +2,10 @@ import SearBox from "@/components/project/search-box";
 import React, { FC } from "react";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string;
     projId: string;
-  };
+  }>;
 
   //   searchParams: {
   //     [key: string]: string | string[] | undefined;

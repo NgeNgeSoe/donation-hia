@@ -1,13 +1,13 @@
 import CurrencyForm from "@/components/organization/currency-form";
 import { Label } from "@/components/ui/label";
-import React, { FC } from "react";
+import React from "react";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
-const NewCurrencyPage: FC<PageProps> = async ({ params }) => {
+const NewCurrencyPage = async ({ params }: PageProps) => {
   const { id } = await params;
   console.log("params", id);
 

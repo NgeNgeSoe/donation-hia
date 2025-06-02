@@ -15,10 +15,10 @@ const getCurrencies = async (orgId: string) => {
 };
 
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string;
     projId: string;
-  };
+  }>;
 };
 
 const NewTransfer: FC<PageProps> = async ({ params }) => {

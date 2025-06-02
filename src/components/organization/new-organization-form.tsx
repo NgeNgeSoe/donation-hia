@@ -85,7 +85,7 @@ const NewOrganizationForm = () => {
                       orgId,
                       role?.id,
                       res.personId,
-                      session.data?.user?.id!
+                      session.data?.user?.id ?? ""
                     ).then((res) => {
                       if (res && !("error" in res)) {
                         // success registeration

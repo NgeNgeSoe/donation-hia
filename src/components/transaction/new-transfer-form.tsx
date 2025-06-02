@@ -48,9 +48,7 @@ const NewTransferForm = ({
   fromProject: ProjectWithTotalModel;
 }) => {
   const { data: session } = useSession();
-  if (!session?.user) {
-    return <div>No login user found</div>;
-  }
+
   const router = useRouter();
 
   const form = useForm<NewTransferFormType>({
@@ -65,6 +63,10 @@ const NewTransferForm = ({
   });
 
   const [ispending, startTransition] = useTransition();
+
+  if (!session?.user) {
+    return <div>No login user found</div>;
+  }
 
   const onSubmit = (data: NewTransferFormType) => {
     const validation = NewTransferSchema.safeParse(data);
@@ -89,7 +91,7 @@ const NewTransferForm = ({
     }
   };
 
-  if (!projectId) return <div>Loading...</div>;
+  if (!projectId || ispending) return <div>Loading...</div>;
 
   return (
     <Card className="w-1/2">
