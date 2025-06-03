@@ -10,22 +10,21 @@ import TransferTable from "@/components/transaction/transfer-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { IncomeWtihNumberAmount, TransferWithProjects } from "@/types";
-import { Income } from "@prisma/client";
 import Link from "next/link";
 import React, { FC } from "react";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     projId: string;
     id: string;
-  };
+  }>;
 };
 const ProjectTransactionPage: FC<PageProps> = async ({ params }) => {
   const { projId, id } = await params;
   const data = await getIncomeByProjectId(projId);
 
   const temp: IncomeWtihNumberAmount[] = data
-    ? data.map((item: any) => ({
+    ? data.map((item) => ({
         id: item.id,
         amount:
           typeof item.amount === "number" ? item.amount : Number(item.amount),
@@ -77,7 +76,7 @@ const ProjectTransactionPage: FC<PageProps> = async ({ params }) => {
           </Link>
         </CardHeader>
         <CardContent>
-          <DataTable columns={columns} data={temp} />
+          <DataTable columns={columns} data={temp} filterColumn="name" />
         </CardContent>
       </Card>
       <Card>

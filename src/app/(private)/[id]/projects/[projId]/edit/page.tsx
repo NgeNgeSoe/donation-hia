@@ -3,10 +3,10 @@ import NewProjectForm from "@/components/project/new-project-form";
 import React, { FC } from "react";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string;
     projId: string;
-  };
+  }>;
 };
 
 const EditProjectPage: FC<PageProps> = async ({ params }) => {

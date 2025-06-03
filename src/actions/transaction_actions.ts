@@ -5,7 +5,7 @@ import {
   NewIncomeSchema,
   NewTransferSchema,
 } from "@/schemas";
-import { string, z } from "zod";
+import { z } from "zod";
 import { getPersonByUserId } from "./auth_actions";
 import { promises as fs } from "fs";
 import path from "path";
@@ -16,6 +16,9 @@ const addIncome = async (
 ) => {
   try {
     const createdBy = await getPersonByUserId(userId);
+    if (!createdBy) {
+      throw new Error("no found person by userId");
+    }
     const income = await prisma.$transaction(async (prisma) => {
       const trans = await prisma.transaction.create({
         data: {
@@ -24,7 +27,7 @@ const addIncome = async (
           projectId: data.projectId,
           transactionDate: data.transactionDate,
           currencyId: data.currencyId,
-          createdById: createdBy?.id!,
+          createdById: createdBy?.id,
         },
       });
       const temp_income = await prisma.income.create({
@@ -49,6 +52,7 @@ const addIncome = async (
           fileName = `${timestamp}-${data.imgUrl.name}`;
         } catch (error) {
           // throws an error if the file doesn't exist,
+          console.error(error);
         }
 
         const temp_data = await data.imgUrl.arrayBuffer();
@@ -88,6 +92,7 @@ const getIncomeByProjectId = async (projectId: string) => {
     });
     return incomes;
   } catch (error) {
+    console.error(error);
     return null;
   }
 };
@@ -98,6 +103,9 @@ const addExpense = async (
 ) => {
   try {
     const createdBy = await getPersonByUserId(userId);
+    if (!createdBy) {
+      throw new Error("not found person by user id");
+    }
     const expense = await prisma.$transaction(async (prisma) => {
       const trans = await prisma.transaction.create({
         data: {
@@ -106,7 +114,7 @@ const addExpense = async (
           projectId: data.projectId,
           transactionDate: data.transactionDate,
           currencyId: data.currencyId,
-          createdById: createdBy?.id!,
+          createdById: createdBy?.id,
         },
       });
       const temp_expense = await prisma.expense.create({
@@ -125,7 +133,9 @@ const addExpense = async (
           await fs.stat(filePath);
           const timestamp = Date.now();
           fileName = `${timestamp}-${data.imgUrl.name}`;
-        } catch (error) {}
+        } catch (error) {
+          throw error;
+        }
         const temp_data = await data.imgUrl.arrayBuffer();
         await fs.writeFile(
           `${process.cwd()}/public/img/${fileName}`,
@@ -160,6 +170,7 @@ const getExpenseByProjectId = async (projectId: string) => {
     });
     return expneses;
   } catch (error) {
+    console.error(error);
     return null;
   }
 };
@@ -170,6 +181,9 @@ const addTransfer = async (
 ) => {
   try {
     const createdBy = await getPersonByUserId(userId);
+    if (!createdBy) {
+      throw new Error("no person found by userId");
+    }
     const transfer = await prisma.$transaction(async (prisma) => {
       const trans = await prisma.transaction.create({
         data: {
@@ -178,7 +192,7 @@ const addTransfer = async (
           projectId: data.fromProjectId,
           transactionDate: data.transactionDate,
           currencyId: data.currencyId,
-          createdById: createdBy?.id!,
+          createdById: createdBy?.id,
         },
       });
       const temp_transfer = await prisma.transfer.create({
@@ -218,6 +232,7 @@ const getTransfersByProjectId = async (projectId: string) => {
     });
     return transfers;
   } catch (error) {
+    console.error(error);
     return null;
   }
 };

@@ -5,9 +5,9 @@ import Link from "next/link";
 import React, { FC } from "react";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 const ProjectPage: FC<PageProps> = async ({ params }) => {

@@ -4,7 +4,7 @@ import React, { useActionState } from "react";
 import { Button } from "../ui/button";
 
 const LogoutButton = () => {
-  const [errorMsgLogout, dispatchLogout] = useActionState(logout, undefined);
+  const [dispatchLogout] = useActionState(logout, undefined);
   return (
     <form action={dispatchLogout}>
       <Button

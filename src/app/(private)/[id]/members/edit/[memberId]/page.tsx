@@ -3,10 +3,10 @@ import NewMemberForm from "@/components/organization/new-member-form";
 import React, { FC } from "react";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string;
     memberId: string;
-  };
+  }>;
 };
 const EditMemberPage: FC<PageProps> = async ({ params }) => {
   const { id, memberId } = await params;

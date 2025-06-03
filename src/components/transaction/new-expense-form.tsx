@@ -10,19 +10,12 @@ import { Input } from "../ui/input";
 import { dropdownModel } from "@/types";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
-import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "../ui/command";
+
 import { Select } from "../ui/select";
 import { SelectTrigger } from "../ui/select";
 import { SelectValue } from "../ui/select";
@@ -46,6 +39,7 @@ const NewExpenseForm = ({
   orgId: string;
 }) => {
   const { data: session } = useSession();
+
   const router = useRouter();
 
   const form = useForm<NewExpenseFormType>({
@@ -60,7 +54,11 @@ const NewExpenseForm = ({
     },
   });
 
-  const [open, setOpen] = React.useState(false);
+  //const [open, setOpen] = React.useState(false);
+
+  if (!session?.user || !session.user?.id) {
+    return <div>No login user found!</div>;
+  }
 
   const onSubmit = (data: NewExpenseFormType) => {
     const validation = NewExpenseSchema.safeParse(data);
@@ -72,7 +70,7 @@ const NewExpenseForm = ({
         startTransition(async () => {
           const newExpense = await addExpense(
             validation.data,
-            session?.user.id!
+            session?.user?.id as string
           );
           if (newExpense) {
             // go to income list page

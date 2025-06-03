@@ -9,7 +9,6 @@ import {
   TableBody,
   TableCell,
 } from "../ui/table";
-import { Transfer } from "@prisma/client";
 import { TransferWithProjects } from "@/types";
 
 const TransferTable = ({ data }: { data: TransferWithProjects[] }) => {

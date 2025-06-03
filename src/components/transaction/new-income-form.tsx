@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useTransition } from "react";
+import React, { useTransition } from "react";
 import {
   Form,
   FormControl,
@@ -56,7 +56,6 @@ const NewIncomeForm = ({
   const member = useMemberStore((state) => state.member);
   const { data: session } = useSession();
   const router = useRouter();
-
   const form = useForm<NewIncomeFormType>({
     resolver: zodResolver(NewIncomeSchema),
     defaultValues: {
@@ -74,13 +73,17 @@ const NewIncomeForm = ({
   const [open, setOpen] = React.useState(false);
   const [ispending, startTransition] = useTransition();
 
+  if (!session?.user) {
+    return <div>No login user found!</div>;
+  }
+
   const onSubmit = (data: NewIncomeFormType) => {
     const validation = NewIncomeSchema.safeParse(data);
 
     if (validation.success) {
       try {
         startTransition(async () => {
-          const income = await addIncome(data, session?.user.id!);
+          const income = await addIncome(data, session?.user.id);
 
           if (income) {
             // go to income list page
@@ -98,12 +101,12 @@ const NewIncomeForm = ({
     }
   };
 
-  if (!member || !projectId) return <div>Loading...</div>;
+  if (!member || !projectId || ispending) return <div>Loading...</div>;
 
   return (
     <Card className="w-1/2 my-3">
       <CardHeader>
-        <CardTitle>New Icome</CardTitle>
+        <CardTitle>New Income</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>

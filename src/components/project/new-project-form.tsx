@@ -5,9 +5,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NewProjectSchema } from "@/schemas";
-import { date, z } from "zod";
+import { z } from "zod";
 import { Input } from "../ui/input";
-import { CalendarIcon, FormInput } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -31,6 +31,7 @@ const NewProjectForm = ({
   project?: ProjectWithTotalModel;
 }) => {
   const { data: session } = useSession();
+
   const router = useRouter();
 
   const form = useForm<NewProjectForm>({
@@ -44,12 +45,20 @@ const NewProjectForm = ({
     },
   });
 
+  if (!session?.user || !session.user.id) {
+    return <div>no login user found!</div>;
+  }
+
   const onSubmit = async (data: NewProjectForm) => {
     const validation = NewProjectSchema.safeParse(data);
     if (validation.success && session && session.user) {
       let result;
       if (!project) {
-        result = await addProject(validation.data, orgId, session?.user.id!);
+        result = await addProject(
+          validation.data,
+          orgId,
+          session.user.id as string
+        );
       } else {
         result = await updateProject(project.id, data);
       }

@@ -5,7 +5,6 @@ import { NewCurrencySchema } from "@/schemas";
 import { z } from "zod";
 import { getPersonByUserId } from "./auth_actions";
 import { Prisma } from "@prisma/client";
-import { promises } from "dns";
 
 const addCurrency = async (
   data: z.infer<typeof NewCurrencySchema>,
@@ -14,6 +13,10 @@ const addCurrency = async (
 ) => {
   try {
     const person = await getPersonByUserId(userId);
+    if (!person) {
+      throw new Error("no person found by user id");
+      //return null;
+    }
     console.log("person", person);
     console.log("orgID", orgId);
     const newCurrency = await prisma.currency.create({
@@ -23,7 +26,7 @@ const addCurrency = async (
         code: data.code,
         default: data.default,
         organizationId: orgId,
-        createdById: person?.id!,
+        createdById: person?.id,
       },
     });
     return newCurrency;

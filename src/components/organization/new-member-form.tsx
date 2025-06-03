@@ -5,15 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { format } from "date-fns";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
@@ -64,6 +56,9 @@ const NewMemberForm = ({
     const validation = NewPersonSchema.safeParse(data);
     console.log("data", validation);
     if (validation.success) {
+      if (!session?.user || !session.user.id) {
+        return <div>no login user. Login again!</div>;
+      }
       //handle success
       let person;
       if (member?.id) {
@@ -74,16 +69,19 @@ const NewMemberForm = ({
         person = await addPerson(data, orgId);
         console.log(" adding member");
         const role = await getRoleByTerms("member");
-        if (!role) {
-          console.log("member role isn't found!");
+
+        if (!role || !person) {
+          console.log("member role or person isn't found!");
+          console.error("no role or person found for member.");
+          return null;
         }
 
         //add personroll
         const personRole = await addPersonRole(
           orgId,
-          role?.id!,
-          person?.id!,
-          session?.user.id!
+          role?.id,
+          person?.id,
+          session?.user.id
         );
         if (personRole) {
           console.log("success adding role to person");
@@ -92,11 +90,8 @@ const NewMemberForm = ({
           console.error("error occur adding role to person");
         }
       }
-      if (!person) {
-        console.log("error adding member");
-      } else {
-        router.replace(`/${orgId}/members`);
-      }
+
+      router.replace(`/${orgId}/members`);
     } else {
       //handle error
       console.error(validation.error);

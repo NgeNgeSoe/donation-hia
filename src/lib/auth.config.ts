@@ -1,7 +1,5 @@
 import Google from "next-auth/providers/google";
-import Credentails from "next-auth/providers/credentials";
-import { CredentialsSignin, type NextAuthConfig } from "next-auth";
-import GitHub from "next-auth/providers/github";
+import { type NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { LoginSchema } from "@/schemas";
 import { prisma } from "./prisma";
@@ -37,4 +35,5 @@ export default {
       },
     }),
   ],
+  trustHost: true,
 } satisfies NextAuthConfig;

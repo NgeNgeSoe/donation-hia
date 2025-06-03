@@ -7,7 +7,23 @@ import {
   getOrganizationByUserId,
   getUserById,
 } from "@/actions/auth_actions";
-import { get } from "http";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      orgId?: string | null;
+      isOauth: boolean;
+      image?: string | null;
+    };
+  }
+
+  interface JWT {
+    orgId?: string | null;
+  }
+}
 
 export const {
   auth,
@@ -21,12 +37,12 @@ export const {
   },
   ...authConfig,
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ account }) {
       if (account?.provider !== "credentials") {
         return true;
       }
 
-      const existingUser = await getUserById(user.id ?? "");
+      //const existingUser = await getUserById(user.id ?? "");
 
       //use these code after adding email verification feature
       // if (!existingUser?.emailVerified) {

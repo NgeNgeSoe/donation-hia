@@ -7,14 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { auth } from "@/lib/auth";
 import Link from "next/link";
 import React, { FC } from "react";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 const MemberPage: FC<PageProps> = async ({ params }) => {
@@ -33,7 +32,7 @@ const MemberPage: FC<PageProps> = async ({ params }) => {
           <CardTitle>Members</CardTitle>
         </CardHeader>
         <CardContent>
-          <MemberTable data={members!} />
+          <MemberTable data={members!} edit={true} />
         </CardContent>
         <CardFooter></CardFooter>
       </Card>

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Folder,
-  Forward,
-  MoreHorizontal,
-  Trash2,
-  type LucideIcon,
-} from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -14,7 +8,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { useContext } from "react";
 import { OrgContext } from "@/contexts/organizationContext";
@@ -38,7 +31,7 @@ export function NavProjects({
       }[]
     | null;
 }) {
-  const { isMobile } = useSidebar();
+  // const { isMobile } = useSidebar();
 
   const orgContext = useContext(OrgContext);
 

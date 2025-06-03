@@ -7,7 +7,6 @@ import bcrypt from "bcryptjs";
 
 import { LoginSchema, RegisterSchema } from "@/schemas";
 import { AuthError } from "next-auth";
-import { redirect } from "next/navigation";
 
 const register = async (data: z.infer<typeof RegisterSchema>) => {
   try {
@@ -40,7 +39,7 @@ const register = async (data: z.infer<typeof RegisterSchema>) => {
 
     const lowerCaseEmail = email.toLowerCase();
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email: lowerCaseEmail,
         name,
