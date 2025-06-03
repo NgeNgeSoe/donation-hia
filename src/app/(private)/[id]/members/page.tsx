@@ -32,7 +32,7 @@ const MemberPage: FC<PageProps> = async ({ params }) => {
           <CardTitle>Members</CardTitle>
         </CardHeader>
         <CardContent>
-          <MemberTable data={members!} />
+          <MemberTable data={members!} edit={true} />
         </CardContent>
         <CardFooter></CardFooter>
       </Card>

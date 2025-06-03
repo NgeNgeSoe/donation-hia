@@ -28,12 +28,16 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   filterColumn?: string;
+  onSelect?: (row: TData) => void;
+  onEdit?: (row: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   filterColumn = "name", /// default to 'name'
+  onSelect,
+  onEdit,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -113,6 +117,26 @@ export function DataTable<TData, TValue>({
                       )}{" "}
                     </TableCell>
                   ))}
+                  {(onSelect || onEdit) && (
+                    <TableCell>
+                      {onSelect && (
+                        <Button
+                          variant={"outline"}
+                          onClick={() => onSelect(row.original)}
+                        >
+                          Select
+                        </Button>
+                      )}
+                      {onEdit && (
+                        <Button
+                          variant={"outline"}
+                          onClick={() => onEdit(row.original)}
+                        >
+                          Edit
+                        </Button>
+                      )}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             ) : (
