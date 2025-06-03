@@ -35,5 +35,5 @@ export default {
       },
     }),
   ],
-  //trustHost: true,
+  trustHost: true,
 } satisfies NextAuthConfig;

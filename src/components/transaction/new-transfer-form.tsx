@@ -19,12 +19,8 @@ import { SelectValue } from "../ui/select";
 import { SelectContent } from "../ui/select";
 import { SelectItem } from "../ui/select";
 import { dropdownModel, ProjectWithTotalModel } from "@/types";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
-import { CalendarIcon } from "lucide-react";
-import { Calendar } from "../ui/calendar";
 
-import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { addTransfer } from "@/actions/transaction_actions";
 import { useSession } from "next-auth/react";
@@ -217,32 +213,13 @@ const NewTransferForm = ({
                 <FormItem>
                   <FormLabel>Transaction Date</FormLabel>
                   <FormControl>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-[240px] justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon />
-                          {field.value ? (
-                            format(field.value, "P")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value ?? undefined}
-                          onSelect={field.onChange}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <Input
+                      type="date"
+                      {...field}
+                      value={
+                        field.value ? format(field.value, "yyyy-MM-dd") : ""
+                      }
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -7,12 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { NewProjectSchema } from "@/schemas";
 import { z } from "zod";
 import { Input } from "../ui/input";
-import { CalendarIcon } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Calendar } from "../ui/calendar";
 import { addProject, updateProject } from "@/actions/project_actions";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -39,8 +35,8 @@ const NewProjectForm = ({
     defaultValues: {
       description: project?.description ?? "",
       location: project?.location ?? "",
-      fromDate: project?.from ?? new Date(),
-      thruDate: project?.to ?? new Date(),
+      fromDate: project?.from ? new Date(project.from) : new Date(),
+      thruDate: project?.to ? new Date(project.to) : new Date(),
       openingAmount: project?.openingAmount ?? 0,
     },
   });
@@ -111,32 +107,14 @@ const NewProjectForm = ({
                 <FormItem>
                   <FormLabel>From Date</FormLabel>
                   <FormControl>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-[240px] justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon />
-                          {field.value ? (
-                            format(field.value, "P")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value ?? undefined}
-                          onSelect={field.onChange}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <Input
+                      type="date"
+                      {...field}
+                      value={
+                        field.value ? format(field.value, "yyyy-MM-dd") : ""
+                      }
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -148,32 +126,14 @@ const NewProjectForm = ({
                 <FormItem>
                   <FormLabel>From Date</FormLabel>
                   <FormControl>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-[240px] justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon />
-                          {field.value ? (
-                            format(field.value, "P")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value ?? undefined}
-                          onSelect={field.onChange}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <Input
+                      type="date"
+                      {...field}
+                      value={
+                        field.value ? format(field.value, "yyyy-MM-dd") : ""
+                      }
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
+                    />
                   </FormControl>
                 </FormItem>
               )}
