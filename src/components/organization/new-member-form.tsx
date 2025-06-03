@@ -11,10 +11,6 @@ import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { CalendarIcon } from "lucide-react";
-import { Calendar } from "../ui/calendar";
-import { cn } from "@/lib/utils";
 import {
   addPerson,
   addPersonRole,
@@ -47,8 +43,8 @@ const NewMemberForm = ({
       phone: member?.phone ?? "",
       member: member?.member ?? true,
       gender: member?.gender ?? "MALE",
-      fromDate: member?.fromDate ?? null,
-      thruDate: member?.thruDate ?? null,
+      fromDate: member?.fromDate ? new Date(member.fromDate) : new Date(),
+      thruDate: member?.thruDate ? new Date(member.thruDate) : null,
     },
   });
 
@@ -192,36 +188,39 @@ const NewMemberForm = ({
                 <FormItem>
                   <FormLabel>From Date</FormLabel>
                   <FormControl>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-[240px] justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon />
-                          {field.value ? (
-                            format(field.value, "P")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value ?? undefined}
-                          onSelect={field.onChange}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <Input
+                      type="date"
+                      {...field}
+                      value={
+                        field.value ? format(field.value, "yyyy-MM-dd") : ""
+                      }
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
                   </FormControl>
                 </FormItem>
               )}
             />
+            {member && (
+              <FormField
+                control={form.control}
+                name="thruDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Thru Date</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                        value={
+                          field.value ? format(field.value, "yyyy-MM-dd") : ""
+                        }
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            )}
             <div className="flex gap-2">
               <Button type="submit" variant={"outline"}>
                 Submit
