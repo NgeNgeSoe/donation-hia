@@ -1,3 +1,4 @@
+import { getProjectById } from "@/actions/project_actions";
 import {
   getExpenseByProjectId,
   getIncomeByProjectId,
@@ -21,7 +22,10 @@ type PageProps = {
 };
 const ProjectTransactionPage: FC<PageProps> = async ({ params }) => {
   const { projId, id } = await params;
+
   const data = await getIncomeByProjectId(projId);
+
+  const projectInfo = await getProjectById(projId);
 
   const temp: IncomeWtihNumberAmount[] = data
     ? data.map((item) => ({
@@ -67,7 +71,21 @@ const ProjectTransactionPage: FC<PageProps> = async ({ params }) => {
 
   return (
     <div>
-      <Label className="text-xl my-2">Project Transaction</Label>
+      <Card className="my-3 w-1/2">
+        <CardContent>
+          <Label className="text-xl font-bold leading-7">
+            {projectInfo?.description}
+          </Label>
+          <Label className="text-gray-500 leading-7">
+            {projectInfo?.location}
+          </Label>
+          <Label className="text-gray-500 leading-7">
+            {projectInfo?.from && projectInfo.from.toLocaleDateString()}-
+            {projectInfo?.to && projectInfo.to.toLocaleDateString()}
+          </Label>
+        </CardContent>
+      </Card>
+      {/* <Label className="text-xl my-2">Project Transaction</Label> */}
       <Card className="mb-2">
         <CardHeader>
           <CardTitle>Incomes</CardTitle>

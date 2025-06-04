@@ -1,11 +1,13 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { NewProjectSchema } from "@/schemas";
+import { NewPhotoFormSchema, NewProjectSchema } from "@/schemas";
 import { ProjectWithTotalModel } from "@/types";
 import { TransactionType } from "@prisma/client";
 import { z } from "zod";
 import { getPersonByUserId } from "./auth_actions";
+import path from "path";
+import { promises as fs } from "fs";
 
 const getProjects = async (organizationId: string) => {
   try {
@@ -170,10 +172,69 @@ const deleteProject = async (id: string) => {
   }
 };
 
+const addPhoto = async (
+  data: z.infer<typeof NewPhotoFormSchema>,
+  userId: string
+) => {
+  try {
+    const createdBy = await getPersonByUserId(userId);
+    if (!createdBy) {
+      throw new Error("not found person by user id");
+    }
+
+    if (data.imgUrl) {
+      let fileName = data.imgUrl.name;
+      const filePath = path.join(process.cwd(), "public", "img", fileName);
+      try {
+        await fs.stat(filePath);
+        //if file exist rename
+        const timestamp = Date.now();
+        fileName = `${timestamp}-${data.imgUrl.name}`;
+      } catch (error) {
+        // throws an error if the file doesn't exist,
+        console.error(error);
+      }
+
+      const temp_data = await data.imgUrl.arrayBuffer();
+      await fs.writeFile(
+        `${process.cwd()}/public/img/${fileName}`,
+        Buffer.from(temp_data)
+      );
+
+      const photo = await prisma.gallery.create({
+        data: {
+          projectId: data.projectId,
+          imageUrl: fileName,
+          createdById: createdBy.id,
+        },
+      });
+      return photo;
+    } else {
+      throw new Error("error occur checking file control have data or not");
+    }
+  } catch (error) {
+    console.error("error occur adding photo", error);
+    return null;
+  }
+};
+
+const getPhotos = async (projectId: string) => {
+  try {
+    const photos = await prisma.gallery.findMany({
+      where: {
+        projectId,
+      },
+    });
+    return photos;
+  } catch (error) {}
+};
+
 export {
   getProjects,
   getProjectById,
   addProject,
   deleteProject,
   updateProject,
+  addPhoto,
+  getPhotos,
 };

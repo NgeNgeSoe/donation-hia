@@ -109,3 +109,8 @@ export const NewTransferSchema = z.object({
   currencyId: z.number(),
   transactionDate: z.coerce.date(),
 });
+
+export const NewPhotoFormSchema = z.object({
+  imgUrl: z.instanceof(File).or(z.null()).optional(),
+  projectId: z.string(),
+});
