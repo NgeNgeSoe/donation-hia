@@ -11,7 +11,13 @@ import {
 import { Label } from "../ui/label";
 import { ProjectWithTotalModel } from "@/types";
 import { Button } from "../ui/button";
-import { EyeIcon, HeartHandshake, SquarePen, Trash2 } from "lucide-react";
+import {
+  EyeIcon,
+  HeartHandshake,
+  Image,
+  SquarePen,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import {
   AlertDialog,
@@ -111,6 +117,11 @@ const ProjectItem: FC<ProjectProps> = ({ item, orgId }) => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+          <Link href={`/${orgId}/projects/${item.id}/photos`}>
+            <Button variant={"outline"}>
+              <Image /> Gallery
+            </Button>
+          </Link>
         </div>
       </CardFooter>
     </Card>
