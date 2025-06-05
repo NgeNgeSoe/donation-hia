@@ -133,6 +133,11 @@ const data = {
       url: "/currencies",
       icon: Frame,
     },
+    {
+      name: "UserRole",
+      url: "/user-role",
+      icon: Frame,
+    },
   ],
 };
 

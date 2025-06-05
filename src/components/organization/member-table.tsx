@@ -11,6 +11,7 @@ type Props = {
   data: Person[];
   url?: string;
   edit?: boolean;
+  view?: boolean;
 };
 
 const memeberColumns: ColumnDef<Person>[] = [
@@ -60,7 +61,7 @@ const memeberColumns: ColumnDef<Person>[] = [
   },
 ];
 
-const MemberTable: FC<Props> = ({ data, url, edit }) => {
+const MemberTable: FC<Props> = ({ data, url, edit, view }) => {
   const setMember = useMemberStore((state) => state.setMember);
   const router = useRouter();
   const params = useParams();
@@ -75,6 +76,10 @@ const MemberTable: FC<Props> = ({ data, url, edit }) => {
     router.push(`/${orgId}/members/edit/${member.id}`);
   };
 
+  const onHandleView = (member: Person) => {
+    router.push(`/${orgId}/members/roles?mid=${member.id}`);
+  };
+
   return (
     <DataTable
       data={data}
@@ -82,6 +87,7 @@ const MemberTable: FC<Props> = ({ data, url, edit }) => {
       filterColumn="fullName"
       {...(url && { onSelect: onHandleSelect })}
       {...(edit && { onEdit: onHandleEdit })}
+      {...(view && { onView: onHandleView })}
     />
   );
 };
