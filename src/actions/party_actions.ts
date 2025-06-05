@@ -2,8 +2,9 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NewOrganizationSchema, NewPersonSchema } from "@/schemas";
-import { PartyType } from "@prisma/client";
+import { PartyType, PersonRole } from "@prisma/client";
 import { z } from "zod";
+import { getPersonByUserId } from "./auth_actions";
 
 const addOrganization = async (data: z.infer<typeof NewOrganizationSchema>) => {
   try {
@@ -240,6 +241,75 @@ const getDefault_Org_Currency = async (orgId: string) => {
   }
 };
 
+const getPersonRoels = async (memberId: string) => {
+  try {
+    const personRoles = await prisma.personRole.findMany({
+      where: {
+        personId: memberId,
+      },
+      include: {
+        role: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    return personRoles.map((pr) => pr.role.name);
+  } catch (error) {
+    console.error("error occur getting user roles", error);
+    return null;
+  }
+};
+
+const savePersonRoles = async (
+  personId: string,
+  roles: string[],
+  userId: string,
+  orgId: string
+) => {
+  try {
+    const createdBy = await getPersonByUserId(userId);
+    if (!createdBy) {
+      throw new Error("no found person by userId");
+    }
+
+    //delete all personroles
+    await prisma.personRole.deleteMany({
+      where: {
+        personId: personId,
+      },
+    });
+
+    const roleRecords = await prisma.role.findMany({
+      where: {
+        name: { in: roles },
+      },
+      select: { id: true },
+    });
+
+    const data = roleRecords.map(
+      (r) =>
+        ({
+          personId,
+          roleId: r.id,
+          organizationId: orgId,
+          createdById: createdBy.id,
+        } as PersonRole)
+    );
+
+    await prisma.personRole.createMany({
+      data,
+      skipDuplicates: true,
+    });
+    return true;
+  } catch (error) {
+    console.error("Error saving person roles:", error);
+    return false;
+  }
+};
+
 export {
   addOrganization,
   addPerson,
@@ -251,4 +321,6 @@ export {
   getMemberByOrganizationId,
   getMembersByTerms,
   getDefault_Org_Currency,
+  getPersonRoels,
+  savePersonRoles,
 };

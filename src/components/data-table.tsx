@@ -30,6 +30,7 @@ interface DataTableProps<TData, TValue> {
   filterColumn?: string;
   onSelect?: (row: TData) => void;
   onEdit?: (row: TData) => void;
+  onView?: (row: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -38,6 +39,7 @@ export function DataTable<TData, TValue>({
   filterColumn = "name", /// default to 'name'
   onSelect,
   onEdit,
+  onView,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -118,7 +120,7 @@ export function DataTable<TData, TValue>({
                     </TableCell>
                   ))}
                   {(onSelect || onEdit) && (
-                    <TableCell>
+                    <TableCell className="flex gap-2">
                       {onSelect && (
                         <Button
                           variant={"outline"}
@@ -133,6 +135,14 @@ export function DataTable<TData, TValue>({
                           onClick={() => onEdit(row.original)}
                         >
                           Edit
+                        </Button>
+                      )}
+                      {onView && (
+                        <Button
+                          variant={"outline"}
+                          onClick={() => onView(row.original)}
+                        >
+                          Role
                         </Button>
                       )}
                     </TableCell>
