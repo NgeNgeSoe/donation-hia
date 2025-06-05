@@ -15,7 +15,6 @@ import {
   EyeIcon,
   HeartHandshake,
   Image,
-  PhoneOutgoingIcon,
   SquarePen,
   Trash2,
 } from "lucide-react";

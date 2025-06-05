@@ -11,7 +11,6 @@ import Link from "next/link";
 import { addPhoto } from "@/actions/project_actions";
 import { useSession } from "next-auth/react";
 import { LoaderIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import Image from "next/image";
 import { Gallery } from "@prisma/client";

@@ -226,7 +226,10 @@ const getPhotos = async (projectId: string) => {
       },
     });
     return photos;
-  } catch (error) {}
+  } catch (error) {
+    console.error("error occur retrieving photos", error);
+    return null;
+  }
 };
 
 export {
