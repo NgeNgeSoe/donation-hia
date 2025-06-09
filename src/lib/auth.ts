@@ -39,6 +39,7 @@ export const {
   callbacks: {
     async signIn({ account }) {
       if (account?.provider !== "credentials") {
+        console.log("the are login with google and prompt from auth.js");
         return true;
       }
 

@@ -3,11 +3,12 @@ import React from "react";
 import { useActionState } from "react";
 import { BsGoogle } from "react-icons/bs";
 import { Button } from "../ui/button";
-import { googleLogin } from "@/actions/register_action";
+import { googleLoginForMember } from "@/actions/register_action";
 
 const GoogleLoginButton = () => {
   const [errorMsgGoogle, dispatchGoogle] = useActionState(
-    googleLogin,
+    //  googleLogin, use this fun to create org
+    googleLoginForMember, // use this fun to create user_person
     undefined
   );
 

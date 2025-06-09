@@ -95,11 +95,24 @@ const login = async (data: z.infer<typeof LoginSchema>) => {
   return { success: "User Logged in successfully!" };
 };
 
-const googleLogin = async () => {
+// const googleLogin = async () => {
+//   try {
+//     await signIn("google", {
+//       // if exists party user
+//       redirectTo: "/dashboard",
+//     });
+//   } catch (error) {
+//     if (error instanceof AuthError) {
+//       return "google login failed";
+//     }
+//     throw error;
+//   }
+// };
+
+const googleLoginForMember = async () => {
   try {
     await signIn("google", {
-      // if exists party user
-      redirectTo: "/dashboard",
+      redirectTo: "/manage",
     });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -121,4 +134,4 @@ const logout = async () => {
   }
 };
 
-export { register, login, googleLogin, logout };
+export { register, login, logout, googleLoginForMember };
