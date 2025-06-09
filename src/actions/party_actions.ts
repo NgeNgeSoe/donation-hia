@@ -1,5 +1,5 @@
 "use server";
-import { auth } from "@/lib/auth";
+
 import { prisma } from "@/lib/prisma";
 import { NewOrganizationSchema, NewPersonSchema } from "@/schemas";
 import { PartyType, PersonRole } from "@prisma/client";
@@ -114,15 +114,15 @@ const getPersonById = async (id: string) => {
   }
 };
 
-const addUserPerson = async (partyId: string) => {
+const addUserPerson = async (partyId: string, userId: string) => {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      throw new Error("session user not found");
-    }
+    // const session = await auth();
+    // if (!session?.user) {
+    //   throw new Error("session user not found");
+    // }
     const userPerson = await prisma.userPerson.create({
       data: {
-        userId: session?.user.id,
+        userId: userId,
         personId: partyId,
       },
     });
@@ -310,6 +310,23 @@ const savePersonRoles = async (
   }
 };
 
+const getPersonByPhone = async (ph: string) => {
+  try {
+    const person = await prisma.person.findFirst({
+      where: {
+        phone: ph,
+      },
+    });
+    if (!person) {
+      throw new Error("Not found person by phone");
+    }
+    return person;
+  } catch (error) {
+    console.error("error occur getting person by phone", error);
+    return null;
+  }
+};
+
 export {
   addOrganization,
   addPerson,
@@ -323,4 +340,5 @@ export {
   getDefault_Org_Currency,
   getPersonRoels,
   savePersonRoles,
+  getPersonByPhone,
 };

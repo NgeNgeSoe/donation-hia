@@ -57,6 +57,10 @@ export const NewPersonSchema = z.object({
   thruDate: z.coerce.date().nullable().optional(),
 });
 
+export const RegisterTypeSchema = z.object({
+  type: z.string().min(1, "select type"),
+});
+
 export const NewCurrencySchema = z.object({
   name: z.string().min(1, {
     message: "Currency name is required",
