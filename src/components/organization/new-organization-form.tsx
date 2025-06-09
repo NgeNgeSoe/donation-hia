@@ -77,29 +77,31 @@ const NewOrganizationForm = () => {
                   return null;
                 }
                 //add userperson and role
-                addUserPerson(res.id).then(async (res) => {
-                  if (res && !("error" in res)) {
-                    //add user person
-                    console.log("added user person", res);
-                    addPersonRole(
-                      orgId,
-                      role?.id,
-                      res.personId,
-                      session.data?.user?.id ?? ""
-                    ).then((res) => {
-                      if (res && !("error" in res)) {
-                        // success registeration
-                        console.log("added person role", res);
-                        router.push("/dashboard");
-                      } else if (res && "error" in res) {
-                        setError("error adding person role");
-                      }
-                    });
-                  } else if (res && "error" in res) {
-                    setLoading(false);
-                    setError("error adding user person");
+                addUserPerson(res.id, session.data.user.id).then(
+                  async (res) => {
+                    if (res && !("error" in res)) {
+                      //add user person
+                      console.log("added user person", res);
+                      addPersonRole(
+                        orgId,
+                        role?.id,
+                        res.personId,
+                        session.data?.user?.id ?? ""
+                      ).then((res) => {
+                        if (res && !("error" in res)) {
+                          // success registeration
+                          console.log("added person role", res);
+                          router.push("/dashboard");
+                        } else if (res && "error" in res) {
+                          setError("error adding person role");
+                        }
+                      });
+                    } else if (res && "error" in res) {
+                      setLoading(false);
+                      setError("error adding user person");
+                    }
                   }
-                });
+                );
               } else if (res && "error" in res) {
                 setLoading(false);
                 setError("error creating person");

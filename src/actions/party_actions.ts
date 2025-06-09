@@ -1,5 +1,5 @@
 "use server";
-import { auth } from "@/lib/auth";
+
 import { prisma } from "@/lib/prisma";
 import { NewOrganizationSchema, NewPersonSchema } from "@/schemas";
 import { PartyType, PersonRole } from "@prisma/client";
