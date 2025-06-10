@@ -1,8 +1,6 @@
 import * as React from "react";
 
 const page = async () => {
-  // const session = await auth();
-  // console.log("session", session);
   // // if (!session?.user.orgId) {
   // //   redirect("/organization/new");
   // // }

@@ -1,6 +1,7 @@
 "use server";
 import { prisma } from "@/lib/prisma";
 import {
+  MemberDonationSchema,
   NewExpenseSchema,
   NewIncomeSchema,
   NewTransferSchema,
@@ -50,9 +51,9 @@ const addIncome = async (
           //if file exist rename
           const timestamp = Date.now();
           fileName = `${timestamp}-${data.imgUrl.name}`;
-        } catch (error) {
+        } catch {
           // throws an error if the file doesn't exist,
-          console.error(error);
+          // console.error(error);
         }
 
         const temp_data = await data.imgUrl.arrayBuffer();
@@ -133,8 +134,8 @@ const addExpense = async (
           await fs.stat(filePath);
           const timestamp = Date.now();
           fileName = `${timestamp}-${data.imgUrl.name}`;
-        } catch (error) {
-          throw error;
+        } catch {
+          //throw error;
         }
         const temp_data = await data.imgUrl.arrayBuffer();
         await fs.writeFile(
@@ -237,6 +238,44 @@ const getTransfersByProjectId = async (projectId: string) => {
   }
 };
 
+const addDonation = async (data: z.infer<typeof MemberDonationSchema>) => {
+  try {
+    //condtional create transaction image if imgUrl exists
+    let fileName = "";
+    if (data.imgUrl) {
+      fileName = data.imgUrl.name;
+
+      const filePath = path.join(process.cwd(), "public", "img", fileName);
+      try {
+        await fs.stat(filePath);
+        const timestamp = Date.now();
+        fileName = `${timestamp}-${data.imgUrl.name}`;
+      } catch {
+        //throw error;
+      }
+      const temp_data = await data.imgUrl.arrayBuffer();
+      await fs.writeFile(
+        `${process.cwd()}/public/img/${fileName}`,
+        Buffer.from(temp_data)
+      );
+    }
+
+    const donation = await prisma.donation.create({
+      data: {
+        personId: data.memberId,
+        amount: data.amount,
+        imageUrl: fileName,
+        receiptNumber: data.refNumber ?? "",
+        projectId: data.projectId,
+      },
+    });
+    return { ...donation, amount: donation.amount.toNumber() };
+  } catch (error) {
+    console.error("Error adding doantion record to db:", error);
+    return null;
+  }
+};
+
 export {
   addIncome,
   getIncomeByProjectId,
@@ -244,4 +283,5 @@ export {
   getExpenseByProjectId,
   addTransfer,
   getTransfersByProjectId,
+  addDonation,
 };

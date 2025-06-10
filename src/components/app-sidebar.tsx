@@ -120,11 +120,19 @@ const data = {
       name: "Projects",
       url: "/projects",
       icon: Frame,
+      roles: ["admin", "member"],
+    },
+    {
+      name: "Transition Histories",
+      url: "#",
+      icon: Frame,
+      roles: ["admin", "member"],
     },
     {
       name: "Members",
       url: "/members",
       icon: PieChart,
+      roles: ["admin"],
     },
   ],
   configurations: [
@@ -132,11 +140,13 @@ const data = {
       name: "Currencies",
       url: "/currencies",
       icon: Frame,
+      roles: ["admin"],
     },
     {
       name: "UserRole",
       url: "/user-role",
       icon: Frame,
+      roles: ["admin"],
     },
   ],
 };

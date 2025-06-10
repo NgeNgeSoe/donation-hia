@@ -1,4 +1,4 @@
-import { Expense, Income, Transfer } from "@prisma/client";
+import { Donation, Expense, Income, Transfer } from "@prisma/client";
 
 export type GetProjectModel = {
   current: ProjectWithTotalModel[] | null;
@@ -46,5 +46,9 @@ export type TransferWithProjects = Omit<Transfer, "amount"> & {
 };
 
 export type ExpenseWtihNumberAmount = Omit<Expense, "amount"> & {
+  amount: number;
+};
+
+export type DonationtihAmount = Omit<Donation, "amount"> & {
   amount: number;
 };

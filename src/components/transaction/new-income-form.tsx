@@ -53,7 +53,8 @@ const NewIncomeForm = ({
   orgId: string;
 }) => {
   const member = useMemberStore((state) => state.member);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
   const router = useRouter();
   const form = useForm<NewIncomeFormType>({
     resolver: zodResolver(NewIncomeSchema),
@@ -72,9 +73,15 @@ const NewIncomeForm = ({
   const [open, setOpen] = React.useState(false);
   const [ispending, startTransition] = useTransition();
 
+  if (status === "loading" || ispending) {
+    return <div>Loading...</div>;
+  }
   if (!session?.user) {
     return <div>No login user found!</div>;
   }
+
+  if (!member || !projectId)
+    return <div>Loading..for member or project id.</div>;
 
   const onSubmit = (data: NewIncomeFormType) => {
     const validation = NewIncomeSchema.safeParse(data);
@@ -99,8 +106,6 @@ const NewIncomeForm = ({
       return;
     }
   };
-
-  if (!member || !projectId || ispending) return <div>Loading...</div>;
 
   return (
     <Card className="w-1/2 my-3">
