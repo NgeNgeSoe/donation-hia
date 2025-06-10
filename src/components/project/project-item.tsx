@@ -32,6 +32,7 @@ import {
 } from "../ui/alert-dialog";
 import { deleteProject } from "@/actions/project_actions";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 type ProjectProps = {
   item: ProjectWithTotalModel;
@@ -40,7 +41,24 @@ type ProjectProps = {
 
 const ProjectItem: FC<ProjectProps> = ({ item, orgId }) => {
   const [isPending, startTransition] = useTransition();
+  // const [personId, setPersonId] = useState("");
   const router = useRouter();
+  const { data: session } = useSession();
+
+  // React.useEffect(() => {
+  //   const fetchPerson = async () => {
+  //     if (!session?.user.isAdmin && session?.user) {
+  //       const res = await fetch(`/api/person/${session.user.id}`);
+  //       const person = await res.json();
+  //       if (person) {
+  //         setPersonId(person.id);
+  //       } else {
+  //         console.error("person not found");
+  //       }
+  //     }
+  //   };
+  //   fetchPerson();
+  // }, [session]);
 
   const handleDelete = () => {
     startTransition(async () => {
@@ -80,48 +98,65 @@ const ProjectItem: FC<ProjectProps> = ({ item, orgId }) => {
       </CardContent>
       <CardFooter>
         <div className="flex flex-1 flex-wrap gap-2 justify-end">
-          <Link href={`/${orgId}/projects/${item.id}/edit`}>
-            <Button variant={"outline"}>
-              <SquarePen /> Edit
-            </Button>
-          </Link>
-          <Link href={`/${orgId}/projects/${item.id}/transactions`}>
-            <Button variant={"outline"}>
-              <EyeIcon /> View
-            </Button>
-          </Link>
-          <Link href={`/${orgId}/projects/${item.id}/search-member`}>
-            <Button variant={"outline"}>
-              <HeartHandshake /> Donate
-            </Button>
-          </Link>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
+          {session?.user.isAdmin ? (
+            <>
+              <Link href={`/${orgId}/projects/${item.id}/edit`}>
+                <Button variant={"outline"}>
+                  <SquarePen /> Edit
+                </Button>
+              </Link>
+              <Link href={`/${orgId}/projects/${item.id}/transactions`}>
+                <Button variant={"outline"}>
+                  <EyeIcon /> View
+                </Button>
+              </Link>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant={"outline"}>
+                    <Trash2 /> Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the project and remove project data from the servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      disabled={isPending}
+                      onClick={handleDelete}
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <Link href={`/${orgId}/projects/${item.id}/photos`}>
+                <Button variant={"outline"}>
+                  <Image /> Gallery
+                </Button>
+              </Link>
+              <Link href={`/${orgId}/projects/${item.id}/search-member`}>
+                <Button variant={"outline"}>
+                  <HeartHandshake /> Donate
+                </Button>
+              </Link>
+            </>
+          ) : (
+            // personId && ( href={`/${orgId}/projects/${item.id}/income/new?mid=${personId}`}
+            <Link href={`/${orgId}/projects/${item.id}/donations/new`}>
               <Button variant={"outline"}>
-                <Trash2 /> Delete
+                <HeartHandshake /> Donate
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  project and remove project data from the servers.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction disabled={isPending} onClick={handleDelete}>
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          <Link href={`/${orgId}/projects/${item.id}/photos`}>
-            <Button variant={"outline"}>
-              <Image /> Gallery
-            </Button>
-          </Link>
+            </Link>
+            // )
+          )}
         </div>
       </CardFooter>
     </Card>

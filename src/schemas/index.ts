@@ -96,6 +96,13 @@ export const NewIncomeSchema = z.object({
   imgUrl: z.instanceof(File).or(z.null()).optional(),
   projectId: z.string(),
 });
+export const MemberDonationSchema = z.object({
+  memberId: z.string(),
+  projectId: z.string(),
+  amount: z.number(),
+  imgUrl: z.instanceof(File).or(z.null()).optional(),
+  refNumber: z.string().nullable(),
+});
 
 export const NewExpenseSchema = z.object({
   description: z.string(),

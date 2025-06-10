@@ -73,9 +73,34 @@ const getPersonByUserId = async (userId: string) => {
   }
 };
 
+const checkUserIsAdmin = async (userId: string, orgId: string) => {
+  try {
+    //get person by userId
+    const person = await getPersonByUserId(userId);
+    if (!person) return false;
+    const personRole = await prisma.personRole.findFirst({
+      where: {
+        personId: person.id,
+        organizationId: orgId,
+        role: {
+          name: {
+            equals: "admin",
+            mode: "insensitive", // optional: case-insensitive match
+          },
+        },
+      },
+    });
+    return !!personRole; //true if found, false otherwise
+  } catch (error) {
+    console.error("error occur check user is admin or not", error);
+    return null;
+  }
+};
+
 export {
   getUserById,
   getAccountByUserId,
   getOrganizationByUserId,
   getPersonByUserId,
+  checkUserIsAdmin,
 };

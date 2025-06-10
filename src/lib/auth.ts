@@ -3,6 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import authConfig from "./auth.config";
 import {
+  checkUserIsAdmin,
   getAccountByUserId,
   getOrganizationByUserId,
   getUserById,
@@ -17,11 +18,13 @@ declare module "next-auth" {
       orgId?: string | null;
       isOauth: boolean;
       image?: string | null;
+      isAdmin: boolean;
     };
   }
 
   interface JWT {
     orgId?: string | null;
+    isAdmin: boolean;
   }
 }
 
@@ -66,6 +69,15 @@ export const {
       token.email = existingUser.email;
       token.image = existingUser.image;
       token.orgId = !!organization ? organization.id : null;
+      token.isAdmin = false;
+      if (organization) {
+        const isAdmin = await checkUserIsAdmin(
+          existingUser.id,
+          organization.id
+        );
+
+        token.isAdmin = isAdmin;
+      }
 
       return token;
     },
@@ -77,6 +89,7 @@ export const {
           id: token.sub,
           isOauth: token.isOauth,
           orgId: token.orgId,
+          isAdmin: token.isAdmin,
         },
       };
     },

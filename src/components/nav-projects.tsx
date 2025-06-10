@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useContext } from "react";
 import { OrgContext } from "@/contexts/organizationContext";
+import { useSession } from "next-auth/react";
 
 export function NavProjects({
   projects,
@@ -21,6 +22,7 @@ export function NavProjects({
         name: string;
         url: string;
         icon: LucideIcon;
+        roles: string[];
       }[]
     | null;
   configurations?:
@@ -28,10 +30,13 @@ export function NavProjects({
         name: string;
         url: string;
         icon: LucideIcon;
+        roles: string[];
       }[]
     | null;
 }) {
   // const { isMobile } = useSidebar();
+
+  const { data: session } = useSession();
 
   const orgContext = useContext(OrgContext);
 
@@ -41,20 +46,27 @@ export function NavProjects({
         <>
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
           <SidebarMenu>
-            {projects.map((item) => (
-              <SidebarMenuItem key={item.name}>
-                <SidebarMenuButton asChild>
-                  <a href={`/${orgContext?.orgId}` + item.url}>
-                    <item.icon />
-                    <span>{item.name}</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {projects
+              .filter((item) => {
+                if (!session?.user.isAdmin) {
+                  return item.roles.includes("member");
+                }
+                return true;
+              })
+              .map((item) => (
+                <SidebarMenuItem key={item.name}>
+                  <SidebarMenuButton asChild>
+                    <a href={`/${orgContext?.orgId}` + item.url}>
+                      <item.icon />
+                      <span>{item.name}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
           </SidebarMenu>
         </>
       )}
-      {configurations && (
+      {configurations && session?.user.isAdmin && (
         <>
           <SidebarGroupLabel>Configurations</SidebarGroupLabel>
           <SidebarMenu>

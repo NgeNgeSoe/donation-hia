@@ -134,6 +134,7 @@ model Person {
   createdPersonRoles PersonRole[] @relation("PersonRole_CreatedBy")
 
   UserPerson UserPerson?
+  Donation   Donation[]  @relation("Donation_Person")
 }
 
 model OrganizationPerson {
@@ -186,6 +187,7 @@ model Project {
   transactions  Transaction[]
   fromTransfers Transfer[]    @relation("FromProjectTransfers")
   toTransfers   Transfer[]    @relation("ToProjectTransfers")
+  Donation      Donation[]
 }
 
 model Gallery {
@@ -308,4 +310,20 @@ model UserPerson {
   @@id([userId, personId]) // <- composite primary key
   @@unique([userId]) // <- composite unique constraint
   @@unique([personId])
+}
+
+model Donation {
+  id            String   @id @default(cuid())
+  personId      String   @db.Uuid
+  amount        Decimal  @db.Decimal(10, 2)
+  imageUrl      String
+  createdAt     DateTime @default(now())
+  receiptNumber String
+  projectId     String
+
+  //relationships
+  person  Person  @relation("Donation_Person", fields: [personId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@index([personId])
 }
