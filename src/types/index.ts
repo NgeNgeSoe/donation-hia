@@ -37,6 +37,7 @@ export type IncomeWtihNumberAmount = Omit<Income, "amount"> & {
   amount: number;
   name: string;
   phone: string;
+  transactionDate: string | Date | number;
 };
 
 export type TransferWithProjects = Omit<Transfer, "amount"> & {
@@ -49,6 +50,7 @@ export type ExpenseWtihNumberAmount = Omit<Expense, "amount"> & {
   amount: number;
 };
 
-export type DonationtihAmount = Omit<Donation, "amount"> & {
+export type DonationWithAmount = Omit<Donation, "amount"> & {
   amount: number;
+  project: string;
 };

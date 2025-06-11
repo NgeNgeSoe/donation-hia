@@ -26,7 +26,7 @@ import {
 import { Check, Loader2 } from "lucide-react";
 import { addDonation } from "@/actions/transaction_actions";
 import { Label } from "../ui/label";
-import { DonationtihAmount } from "@/types";
+import { DonationWithAmount } from "@/types";
 import Link from "next/link";
 
 type MemberDoantionFormType = z.infer<typeof MemberDonationSchema>;
@@ -53,7 +53,7 @@ const MemberDonationForm = ({
 
   const [ispending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
-  const [donation, setDonation] = useState<DonationtihAmount | null>(null);
+  const [donation, setDonation] = useState<DonationWithAmount | null>(null);
 
   const onSubmit = (data: MemberDoantionFormType) => {
     const validation = MemberDonationSchema.safeParse(data);
@@ -67,7 +67,9 @@ const MemberDonationForm = ({
           }
           console.log("donaciton", donation);
           setSuccess(true);
-          setDonation(res);
+          setDonation({
+            ...res,
+          });
           //show success section
         });
       } catch (error) {

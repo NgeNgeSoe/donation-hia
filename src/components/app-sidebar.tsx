@@ -123,14 +123,20 @@ const data = {
       roles: ["admin", "member"],
     },
     {
-      name: "Transition Histories",
-      url: "#",
+      name: "Transaction Histories",
+      url: "/donation-records",
       icon: Frame,
       roles: ["admin", "member"],
     },
     {
       name: "Members",
       url: "/members",
+      icon: PieChart,
+      roles: ["admin"],
+    },
+    {
+      name: "Requested Transactions",
+      url: "/requested-transactions",
       icon: PieChart,
       roles: ["admin"],
     },

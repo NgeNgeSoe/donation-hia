@@ -10,6 +10,7 @@ import { z } from "zod";
 import { getPersonByUserId } from "./auth_actions";
 import { promises as fs } from "fs";
 import path from "path";
+import { PayType } from "@/types";
 
 const addIncome = async (
   data: z.infer<typeof NewIncomeSchema>,
@@ -89,6 +90,7 @@ const getIncomeByProjectId = async (projectId: string) => {
       },
       include: {
         member: true,
+        transaction: true,
       },
     });
     return incomes;
@@ -268,14 +270,152 @@ const addDonation = async (data: z.infer<typeof MemberDonationSchema>) => {
         receiptNumber: data.refNumber ?? "",
         projectId: data.projectId,
       },
+      include: {
+        project: true,
+      },
     });
-    return { ...donation, amount: donation.amount.toNumber() };
+    return {
+      ...donation,
+      amount: donation.amount.toNumber(),
+      project: donation.project?.description ?? "",
+    };
   } catch (error) {
     console.error("Error adding doantion record to db:", error);
     return null;
   }
 };
+const getDonationByPersonId = async (userId: string) => {
+  try {
+    const member = await getPersonByUserId(userId);
+    if (!member) {
+      throw new Error("no person found by userId");
+    }
+    const donations = await prisma.donation.findMany({
+      where: {
+        personId: member.id,
+      },
+      include: {
+        project: true,
+      },
+    });
+    return donations;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+const getIncomeByPersonId = async (userId: string) => {
+  try {
+    const member = await getPersonByUserId(userId);
+    if (!member) {
+      throw new Error("no person found by userId");
+    }
+    const incomes = await prisma.income.findMany({
+      where: {
+        memberId: member.id,
+      },
+      include: {
+        transaction: {
+          include: {
+            project: true,
+          },
+        },
+      },
+    });
+    return incomes;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
 
+const getAllDonationRecords = async () => {
+  try {
+    const donations = await prisma.donation.findMany({
+      include: {
+        project: true,
+      },
+    });
+    return donations;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+const approveDonationRecord = async (donationId: string, userId: string) => {
+  try {
+    const createdBy = await getPersonByUserId(userId);
+    if (!createdBy) {
+      throw new Error("no found person by userId");
+    }
+
+    const donation = await prisma.donation.findUnique({
+      where: { id: donationId },
+      include: {
+        project: true,
+      },
+    });
+
+    const defaultCurrency = await prisma.currency.findFirst({
+      where: {
+        organizationId: donation?.project?.organizationId,
+        default: true,
+      },
+    });
+
+    if (!donation) {
+      throw new Error("Donation record not found");
+    }
+    // Create transaction and income in a transaction
+    const result = await prisma.$transaction(async (prisma) => {
+      // Create transaction (type: INCOME)
+      if (!defaultCurrency || typeof defaultCurrency.id !== "number") {
+        throw new Error("Default currency not found or invalid");
+      }
+      const transaction = await prisma.transaction.create({
+        data: {
+          type: "INCOME",
+          createdAt: new Date(),
+          projectId: donation.projectId,
+          transactionDate: donation.createdAt,
+          currencyId: defaultCurrency.id,
+          createdById: createdBy.id,
+        },
+      });
+      // Create income record linked to transaction and person
+      await prisma.income.create({
+        data: {
+          id: transaction.id,
+          memberId: donation.personId,
+          amount: donation.amount,
+          remark: donation.receiptNumber || "Donation approved.",
+          payType: PayType.OTHERS, // or another value if you have enum
+        },
+      });
+
+      if (donation.imageUrl && donation.imageUrl.trim() !== "") {
+        // Save the image URL if it exists
+        await prisma.transactionFile.create({
+          data: {
+            transactionId: transaction.id,
+            imageUrl: donation.imageUrl,
+          },
+        });
+      }
+
+      // Delete the donation after transferring data
+      await prisma.donation.delete({
+        where: { id: donationId },
+      });
+      return true;
+    });
+    return result;
+  } catch (error) {
+    console.error("Error approving donation record:", error);
+    return null;
+  }
+};
 export {
   addIncome,
   getIncomeByProjectId,
@@ -284,4 +424,8 @@ export {
   addTransfer,
   getTransfersByProjectId,
   addDonation,
+  getIncomeByPersonId,
+  getDonationByPersonId,
+  getAllDonationRecords,
+  approveDonationRecord,
 };

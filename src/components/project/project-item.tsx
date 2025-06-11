@@ -45,21 +45,6 @@ const ProjectItem: FC<ProjectProps> = ({ item, orgId }) => {
   const router = useRouter();
   const { data: session } = useSession();
 
-  // React.useEffect(() => {
-  //   const fetchPerson = async () => {
-  //     if (!session?.user.isAdmin && session?.user) {
-  //       const res = await fetch(`/api/person/${session.user.id}`);
-  //       const person = await res.json();
-  //       if (person) {
-  //         setPersonId(person.id);
-  //       } else {
-  //         console.error("person not found");
-  //       }
-  //     }
-  //   };
-  //   fetchPerson();
-  // }, [session]);
-
   const handleDelete = () => {
     startTransition(async () => {
       const result = await deleteProject(item.id);
@@ -149,12 +134,14 @@ const ProjectItem: FC<ProjectProps> = ({ item, orgId }) => {
               </Link>
             </>
           ) : (
-            // personId && ( href={`/${orgId}/projects/${item.id}/income/new?mid=${personId}`}
-            <Link href={`/${orgId}/projects/${item.id}/donations/new`}>
-              <Button variant={"outline"}>
-                <HeartHandshake /> Donate
-              </Button>
-            </Link>
+            // Only show donate button for non-admin if project is not expired
+            item.to && new Date(item.to) > new Date() ? (
+              <Link href={`/${orgId}/projects/${item.id}/donations/new`}>
+                <Button variant={"outline"}>
+                  <HeartHandshake /> Donate
+                </Button>
+              </Link>
+            ) : null
             // )
           )}
         </div>
