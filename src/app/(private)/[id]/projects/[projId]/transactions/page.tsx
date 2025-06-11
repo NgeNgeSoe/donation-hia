@@ -37,6 +37,9 @@ const ProjectTransactionPage: FC<PageProps> = async ({ params }) => {
         remark: item.remark,
         name: item.member?.fullName ?? "N/A",
         phone: item.member?.phone ?? "N/A",
+        transactionDate: item.transaction?.transactionDate
+          ? new Date(item.transaction.transactionDate).toLocaleDateString()
+          : "-",
       }))
     : [];
 
