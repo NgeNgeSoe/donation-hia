@@ -1,7 +1,4 @@
-import {
-  getAllDonationRecords,
-  getDonationByPersonId,
-} from "@/actions/transaction_actions";
+import { getAllDonationRecords } from "@/actions/transaction_actions";
 import DonationTable from "@/components/transaction/donation-table";
 import React from "react";
 

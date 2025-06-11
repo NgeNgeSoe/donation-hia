@@ -1,12 +1,9 @@
 "use client";
 import { DonationWithAmount } from "@/types";
-import { ColumnDef } from "@tanstack/react-table";
 import React, { FC, useTransition } from "react";
-import { DataTable } from "../data-table";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,

@@ -67,7 +67,9 @@ const MemberDonationForm = ({
           }
           console.log("donaciton", donation);
           setSuccess(true);
-          setDonation(res);
+          setDonation({
+            ...res,
+          });
           //show success section
         });
       } catch (error) {

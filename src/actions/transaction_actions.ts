@@ -270,8 +270,15 @@ const addDonation = async (data: z.infer<typeof MemberDonationSchema>) => {
         receiptNumber: data.refNumber ?? "",
         projectId: data.projectId,
       },
+      include: {
+        project: true,
+      },
     });
-    return { ...donation, amount: donation.amount.toNumber() };
+    return {
+      ...donation,
+      amount: donation.amount.toNumber(),
+      project: donation.project?.description ?? "",
+    };
   } catch (error) {
     console.error("Error adding doantion record to db:", error);
     return null;
@@ -377,7 +384,7 @@ const approveDonationRecord = async (donationId: string, userId: string) => {
         },
       });
       // Create income record linked to transaction and person
-      const income = await prisma.income.create({
+      await prisma.income.create({
         data: {
           id: transaction.id,
           memberId: donation.personId,
