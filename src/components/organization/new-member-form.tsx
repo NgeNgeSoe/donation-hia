@@ -28,9 +28,11 @@ type NewMemberForm = z.infer<typeof NewPersonSchema>;
 const NewMemberForm = ({
   orgId,
   member,
+  redirectUrl,
 }: {
   orgId: string;
   member?: Person;
+  redirectUrl?: string;
 }) => {
   const router = useRouter();
   const { data: session } = useSession();
@@ -86,8 +88,12 @@ const NewMemberForm = ({
           console.error("error occur adding role to person");
         }
       }
-
-      router.replace(`/${orgId}/members`);
+      if (redirectUrl) {
+        router.push(redirectUrl);
+      } else {
+        //redirect to member page
+        router.replace(`/${orgId}/members`);
+      }
     } else {
       //handle error
       console.error(validation.error);
@@ -142,21 +148,24 @@ const NewMemberForm = ({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="member"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Member?</FormLabel>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+            {session?.user.isAdmin ? (
+              <FormField
+                control={form.control}
+                name="member"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Member?</FormLabel>
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            ) : null}
+
             <FormField
               control={form.control}
               name="gender"
@@ -225,9 +234,15 @@ const NewMemberForm = ({
               <Button type="submit" variant={"outline"}>
                 Submit
               </Button>
-              <Link href={`/${orgId}/members`}>
-                <Button variant={"secondary"}>Cancel</Button>
-              </Link>
+              {redirectUrl ? (
+                <Link href={redirectUrl}>
+                  <Button variant={"secondary"}>Cancel</Button>
+                </Link>
+              ) : (
+                <Link href={`/${orgId}/members`}>
+                  <Button variant={"secondary"}>Cancel</Button>
+                </Link>
+              )}
             </div>
           </form>
         </Form>

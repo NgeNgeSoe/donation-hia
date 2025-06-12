@@ -19,6 +19,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export function NavUser({
   user,
@@ -32,7 +33,7 @@ export function NavUser({
   const { isMobile } = useSidebar();
 
   //const [errorMsgLogout, dispatchLogout] = useActionState(logout, undefined);
-
+  const router = useRouter();
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -74,7 +75,11 @@ export function NavUser({
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  router.push(`/profile`);
+                }}
+              >
                 <BadgeCheck />
                 Profile
               </DropdownMenuItem>
