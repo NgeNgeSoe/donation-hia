@@ -1,14 +1,12 @@
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import * as React from "react";
 
 const page = async () => {
-  // // if (!session?.user.orgId) {
-  // //   redirect("/organization/new");
-  // // }
-  // if (!session?.user.orgId) {
-  //   redirect("/manage");
-  // } else {
-  //   console.log("no session", session);
-  // }
+  const session = await auth();
+  if (!session?.user.orgId) {
+    redirect("/manage");
+  }
 
   return <div>dashboard</div>;
 };
