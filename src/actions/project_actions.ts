@@ -232,6 +232,33 @@ const getPhotos = async (projectId: string) => {
   }
 };
 
+const getLast12Projects = async () => {
+  try {
+    const projects = await prisma.project.findMany({
+      orderBy: {
+        fromDate: "desc",
+      },
+      take: 12,
+      include: {
+        galleries: true,
+      },
+    });
+    return projects.map((project) => ({
+      id: project.id,
+      description: project.description,
+      location: project.location,
+      //openingAmount: project.openingBalance.toNumber(),
+      from: project.fromDate,
+      to: project.thruDate,
+      galleries: project.galleries,
+      //createdAt: project.createdAt,
+    }));
+  } catch (error) {
+    console.error("error occur getting last 12 projects", error);
+    return null;
+  }
+};
+
 export {
   getProjects,
   getProjectById,
@@ -240,4 +267,5 @@ export {
   updateProject,
   addPhoto,
   getPhotos,
+  getLast12Projects,
 };

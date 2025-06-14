@@ -148,12 +148,12 @@ const data = {
       icon: Frame,
       roles: ["admin"],
     },
-    {
-      name: "UserRole",
-      url: "/user-role",
-      icon: Frame,
-      roles: ["admin"],
-    },
+    // {
+    //   name: "UserRole",
+    //   url: "/user-role",
+    //   icon: Frame,
+    //   roles: ["admin"],
+    // },
   ],
 };
 
